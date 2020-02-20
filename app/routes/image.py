@@ -7,7 +7,7 @@ image_blueprint = Blueprint('image', __name__)
 
 @image_blueprint.route('/', methods=["POST"])
 def addImage():
-    data = request.json 
-    result = actions.addImage(data)
+    data = request.files['image'] 
+    actions.saveImage(data)
 
-    return jsonify(result), 201
+    return jsonify({ "message": "success" }), 201
