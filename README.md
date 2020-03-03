@@ -22,7 +22,7 @@ export PORT=3001
 To use the environment variable when executing command, you can export the environment variable in file named `.env` with command `source ./.env`.
 
 # Run the Program
-
+py
 Don't forget to use pip env terminal first. To start the service, use command
 
 > pipenv shell
