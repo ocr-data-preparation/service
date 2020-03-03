@@ -11,3 +11,13 @@ def addImage():
     actions.saveImage(data)
 
     return jsonify({ "message": "success" }), 201
+
+
+
+@image_blueprint.route('/slice', methods=["POST"])
+def addImage():
+    data = request.files['image'] 
+    actions.saveImage(data)
+    
+
+    return jsonify({ "message": "success" }), 201

@@ -24,3 +24,4 @@ def get():
     return jsonify({"time": current_time })
 
 app.run(port = config.PORT)
+
