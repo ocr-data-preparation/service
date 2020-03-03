@@ -1,8 +1,11 @@
 import flask
 from flask import request, Blueprint, jsonify
 from actions import image as actions
+import os
+from datetime import datetime
 
-import 
+
+ 
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -16,9 +19,11 @@ def addImage():
 
 
 @image_blueprint.route('/slice', methods=["POST"])
-def addImage():
+def sliceIm():
     data = request.files['image'] 
-    actions.image_slicer(data)
+    current_time = datetime.now()
+    actions.image_slicer(data,os.getcwd(),current_time)
 
 
+    return jsonify({ "message": "success" }), 201
     return jsonify({ "message": "success" }), 201

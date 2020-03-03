@@ -1,10 +1,12 @@
+from __future__ import division
 import flask
 import os
 from datetime import datetime
 from werkzeug.utils import secure_filename
-from __future__ import division
 from PIL import Image
 import math
+from random import seed
+from random import randint
 
 
 def saveImage(image):
@@ -17,9 +19,16 @@ def saveImage(image):
 
 
 
-def image_slicer(image_path,  outdir):
+def image_slicer(image,  outdir,current_time):
     """slice an image into parts slice_size tall"""
-    img = Image.open(image_path)
+
+    path = os.path.join("app/actions/images/temp.jpg")
+    print("yooo" + os.getcwd())
+    image.save(path)
+    #C:\Users\rizal\Documents\AllProject\ocr-data-preparation-service\app\actions\images
+
+    #img = Image.open(image_path)
+    img = Image.open(path)
     width, height = img.size
 
     
@@ -44,8 +53,12 @@ def image_slicer(image_path,  outdir):
             working_slice = img.crop(bbox)
             #left += slice_size_horz
             
+            seed(1)
+
+
+            name =       str(x)+str(y)+ "-"+ str(randint(1,100))
             #save the slice
-            working_slice.save(os.path.join(outdir + "\\" + str(x+1), str(x)+str(y)+".png"))
+            working_slice.save(os.path.join(outdir + "\\app\\result"+"\\"  + str(x+1), name + ".png"))
             
             count +=1
             left += slice_size_horz
