@@ -1,7 +1,8 @@
 import flask
 from flask import request, Blueprint, jsonify
-
 from actions import image as actions
+
+import 
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -17,7 +18,7 @@ def addImage():
 @image_blueprint.route('/slice', methods=["POST"])
 def addImage():
     data = request.files['image'] 
-    actions.saveImage(data)
-    
+    actions.image_slicer(data)
+
 
     return jsonify({ "message": "success" }), 201
