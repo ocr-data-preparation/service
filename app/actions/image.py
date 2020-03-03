@@ -7,12 +7,8 @@ from PIL import Image
 import math
 from random import seed
 from random import randint
-
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
-import time
-import os
 
 def saveImage(image):
     current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
@@ -21,8 +17,11 @@ def saveImage(image):
     path = os.path.join("images/", filename + ".jpg")
     image.save(path)
 
+    return path
+
 def isBlank(image):
-    img = cv.imread(image,0)
+    path = saveImage(image)
+    img = cv.imread(path,0)
     _,th = cv.threshold(img,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
     count0 = cv.countNonZero(th)
     countTotal = th.shape[0] * th.shape[1]
@@ -32,10 +31,7 @@ def isBlank(image):
     else:
         return False
 
-
-
-
-def image_slicer(image,  outdir,current_time):
+def imageSlicer(image,  outdir,current_time):
     """slice an image into parts slice_size tall"""
 
     path = os.path.join("app/actions/images/temp.jpg")
