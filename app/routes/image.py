@@ -7,23 +7,23 @@ from datetime import datetime
 image_blueprint = Blueprint('image', __name__)
 
 @image_blueprint.route('/', methods=["POST"])
-def addImage():
+def add_image():
     data = request.files['image'] 
-    actions.saveImage(data)
+    actions.save_image(data)
 
-    return jsonify({ "message": "success" }), 201
+    return jsonify({ "message": "success" }), 200
 
 @image_blueprint.route('/slice', methods=["POST"])
-def sliceIm():
+def slice_image():
     data = request.files['image'] 
     current_time = datetime.now()
-    actions.imageSlicer(data,os.getcwd(),current_time)
+    actions.slice_image(data)
 
-    return jsonify({ "message": "success" }), 201
+    return jsonify({ "message": "success" }), 200
 
 @image_blueprint.route('/detect/blank', methods=["POST"])
-def detectBlank():
+def detect_blank():
     data = request.files['image'] 
-    is_blank = actions.isBlank(data)
+    is_blank = actions.is_blank(data)
 
-    return jsonify({ "is_blank" : is_blank }), 201
+    return jsonify({ "is_blank" : is_blank }), 200
