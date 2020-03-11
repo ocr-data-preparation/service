@@ -54,7 +54,7 @@ def slice_image(image):
             bbox = (left, upper, left +slice_size_horz, upper + slice_size_vert)
             working_slice = img.crop(bbox)
             
-            current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H:%M:%S)")
+            current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(y))
             filename = secure_filename(current_time)
             working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
 
@@ -64,3 +64,12 @@ def slice_image(image):
             left += slice_size_horz
 
         upper += slice_size_vert
+
+def bulk_save(data):
+    for i  in range(0, data.length):
+        if (not data[i].is_excluded):
+            current_time = datetime.now().strftime(str(i%14) + "-%d-%b-%Y (%H:%M:%S)")
+            filename = secure_filename(current_time)
+
+            path = os.path.join("images/" + str(i/14 + 1) + "/", filename + ".jpg")
+            image.save(path)

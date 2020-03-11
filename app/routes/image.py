@@ -26,4 +26,11 @@ def detect_blank():
     data = request.files['image'] 
     is_blank = actions.is_blank(data)
 
-    return jsonify({ "is_blank" : is_blank }), 200
+    return jsonify({ "message" : { "is_blank": is_blank} }), 200
+
+@image_blueprint.route('/save', methods=["POST"])
+def bulk_save_image():
+    data = request.json
+    actions.bulk_save_image(data)
+    
+    return jsonify({ "message" : "success" }), 200
