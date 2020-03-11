@@ -1,4 +1,5 @@
 import flask
+import json
 from flask import request, Blueprint, jsonify
 from actions import image as actions
 import os
@@ -30,7 +31,9 @@ def detect_blank():
 
 @image_blueprint.route('/save', methods=["POST"])
 def bulk_save_image():
-    data = request.json
-    actions.bulk_save_image(data)
+    data = request.files['image']
+    excludes = json.loads(request.form['excludes'])
+
+    actions.bulk_save(data, excludes)
     
     return jsonify({ "message" : "success" }), 200

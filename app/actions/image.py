@@ -65,11 +65,36 @@ def slice_image(image):
 
         upper += slice_size_vert
 
-def bulk_save(data):
-    for i  in range(0, data.length):
-        if (not data[i].is_excluded):
-            current_time = datetime.now().strftime(str(i%14) + "-%d-%b-%Y (%H:%M:%S)")
-            filename = secure_filename(current_time)
+def bulk_save(data, excludes):
+    path = save_image(data)
 
-            path = os.path.join("images/" + str(i/14 + 1) + "/", filename + ".jpg")
-            image.save(path)
+    img = Image.open(path)
+    width, height = img.size
+
+    upper = height/50
+    left = width/50
+    left_default = width/50
+    slice_size_vert = (height - upper*2)/10
+    slice_size_horz = (width - upper*2)/10
+
+    slices = 10
+
+    count = 1
+    for x in range(slices):
+        left = left_default
+
+        for y in range(slices): 
+            bbox = (left, upper, left +slice_size_horz, upper + slice_size_vert)
+            working_slice = img.crop(bbox)
+            
+            current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(y))
+            filename = secure_filename(current_time)
+            working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
+
+            if(not excludes[x][y]):
+                working_slice.save(working_path)
+            
+            count +=1
+            left += slice_size_horz
+
+        upper += slice_size_vert
