@@ -64,3 +64,15 @@ def slice_image(image):
             left += slice_size_horz
 
         upper += slice_size_vert
+
+        
+#resize image: tambahin ke tempat ingin dipakai
+def resize(x):
+    # Opens a image in RGB mode  
+    im = Image.open(r"file[ath")  
+  
+    newsize = (x, x) 
+    im1 = im1.resize(newsize) 
+    # Shows the image in image viewer  
+    im1.show()  
+
