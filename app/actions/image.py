@@ -16,6 +16,7 @@ N_COLLUMN = 14
 SQUARE_MARGIN_DIVISION_FACTOR = 10
 CONNECTED_COMPONENT_OFFSET = 3
 APPEND_WHITE_DIVISION_FACTOR = 16
+MINIMUM_APPEND_COLOR = 192
 
 def save_image(image):
     current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
@@ -120,13 +121,32 @@ def get_connected_component_corners(image):
     num_labels, labels_im = cv.connectedComponents(th)
     return get_corner(labels_im)
 
+
+def get_border_color(connected_component_img):
+    color = [0, 0, 0]
+    count = 0
+    for i, row in enumerate(connected_component_img):
+        for j, element in enumerate(row):
+            if i == 0 or j == 0 or i == len(connected_component_img) - 1 or j == len(connected_component_img[0]) - 1:
+                element_color_mean = int((int(element[0]) + int(element[1]) + int(element[2])) / 3)
+                if element_color_mean > MINIMUM_APPEND_COLOR:
+                    color[0] += element[0]
+                    color[1] += element[1]
+                    color[2] += element[2]
+                    count += 1
+    if count > 0:
+        return [int(color[0] / count), int(color[1] / count), int(color[2] / count)]
+    else:
+        return[MINIMUM_APPEND_COLOR, MINIMUM_APPEND_COLOR, MINIMUM_APPEND_COLOR]
+
+
 def append_white(connected_component_img):
     image_length = len(connected_component_img[0])
     image_width = len(connected_component_img)
     x_border_size = 0
     y_border_size = 0
     not_enough = ''
-
+    border_color = get_border_color(connected_component_img)
     if image_length > image_width:
         x_border_size = round(image_length / APPEND_WHITE_DIVISION_FACTOR)
         y_border_size = round((image_length - image_width + 2 * x_border_size) / 2)
@@ -137,16 +157,16 @@ def append_white(connected_component_img):
     if image_length + 2 * x_border_size < image_width + 2 * y_border_size:
         not_enough = 'length'
         connected_component_img = cv.copyMakeBorder(np.array(connected_component_img), y_border_size, y_border_size,
-        x_border_size, x_border_size + 1, cv.BORDER_CONSTANT, value=[255,255,255])
+        x_border_size, x_border_size + 1, cv.BORDER_CONSTANT, value=border_color)
     
     elif image_length + 2 * x_border_size > image_width + 2 * y_border_size:
         not_enough = 'width' 
         connected_component_img = cv.copyMakeBorder(np.array(connected_component_img), y_border_size, y_border_size + 1,
-        x_border_size, x_border_size, cv.BORDER_CONSTANT, value=[255,255,255])
+        x_border_size, x_border_size, cv.BORDER_CONSTANT, value=border_color)
     
     else:
         connected_component_img = cv.copyMakeBorder(np.array(connected_component_img), y_border_size, y_border_size,
-        x_border_size, x_border_size, cv.BORDER_CONSTANT, value=[255,255,255])
+        x_border_size, x_border_size, cv.BORDER_CONSTANT, value=border_color)
 
     image_length = len(connected_component_img[0])
     image_width = len(connected_component_img)
@@ -182,10 +202,6 @@ def create_connected_component(image):
     upper = 0
     slice_size_vert = round(height/N_ROW)
     slice_size_horz = round(width/N_COLLUMN)
-    for i in range(10):
-        for j in range(14):
-            save_image_cv(slice_list[i][j], 'images/hahaha' + str(i) + str(j) + '.jpg')
-
 
     boolean_list = []
     result_image_list = []
