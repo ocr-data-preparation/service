@@ -4,8 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 import os
 
-def create_database_blueprint(app):
-    database_blueprint = Blueprint('database', __name__)
+def create_project_blueprint(app):
+    project_blueprint = Blueprint('project', __name__)
     db = SQLAlchemy(app)
     ma = Marshmallow(app)
 
@@ -27,7 +27,7 @@ def create_database_blueprint(app):
     projects_schema = ProjectSchema(many=True)
 
     # endpoint to add new project
-    @database_blueprint.route("/project", methods=["POST"])
+    @project_blueprint.route("/", methods=["POST"])
     def add_project():
         project_name = request.json['project_name']
         pixels = request.json['pixels']
@@ -40,7 +40,7 @@ def create_database_blueprint(app):
         return jsonify(success = True)
 
     # endpoint to show all projects
-    @database_blueprint.route("/project", methods=["GET"])
+    @project_blueprint.route("/", methods=["GET"])
     def get_project():
         all_project = Project.query.all()
         result = projects_schema.dump(all_project)
@@ -48,14 +48,14 @@ def create_database_blueprint(app):
         return jsonify(result)
 
     # endpoint to get project detail by id
-    @database_blueprint.route("/project/<id>", methods=["GET"])
+    @project_blueprint.route("/<id>", methods=["GET"])
     def project_detail(id):
         project = Project.query.get(id)
         
         return project_schema.jsonify(project)
 
     # endpoint to update project by id
-    @database_blueprint.route("/project/<id>", methods=["PUT"])
+    @project_blueprint.route("/<id>", methods=["PUT"])
     def project_update(id):
         project = Project.query.get(id)
         project_name = request.json['project_name']
@@ -68,7 +68,7 @@ def create_database_blueprint(app):
         return project_schema.jsonify(project)
 
     # endpoint to delete project
-    @database_blueprint.route("/project/<id>", methods=["DELETE"])
+    @project_blueprint.route("/<id>", methods=["DELETE"])
     def project_delete(id):
         project = Project.query.get(id)
         db.session.delete(project)
@@ -76,4 +76,4 @@ def create_database_blueprint(app):
 
         return project_schema.jsonify(project)
     
-    app.register_blueprint(database_blueprint, url_prefix='/database')
+    app.register_blueprint(project_blueprint, url_prefix='/project')
