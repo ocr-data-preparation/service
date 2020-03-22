@@ -41,7 +41,7 @@ def add_project():
     db.session.add(new_project)
     db.session.commit()
 
-    return jsonify(new_project)
+    return jsonify(success = True)
 
 
 # endpoint to show all projects
