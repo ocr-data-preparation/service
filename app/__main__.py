@@ -1,13 +1,21 @@
 import flask
 from flask import Flask, jsonify
 from datetime import datetime
+import os
 
 import config
 from routes.image import image_blueprint
+from routes.database import create_database_blueprint
 
 app = Flask(__name__)
 
 app.register_blueprint(image_blueprint, url_prefix='/image')
+
+basedir = os.path.abspath(os.path.dirname(__file__))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database/db.sqlite')
+create_database_blueprint(app)
+
+
 
 @app.after_request
 def after_request(response):

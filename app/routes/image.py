@@ -1,8 +1,9 @@
 import flask
 from flask import request, Blueprint, jsonify
-from actions import image as actions
 import os
 from datetime import datetime
+
+from actions import image as actions
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -38,5 +39,4 @@ def create_connected_component():
             blank = str(bool_list[i][j])
             actions.save_image_cv(element, 'images/test/' + str(i) + '/' + blank + str(j) + '.jpg')
 
-
-    return jsonify({ "message": "success" }), 200
+    return jsonify({ "message": "success" }), 200   
