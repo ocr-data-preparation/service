@@ -40,3 +40,15 @@ def create_connected_component():
             actions.save_image_cv(element, 'images/test/' + str(i) + '/' + blank + str(j) + '.jpg')
 
     return jsonify({ "message": "success" }), 200   
+
+@image_blueprint.route('/submit', methods=["POST"])
+def submit():
+        data = request.files['image'] 
+        #actions.save_image_cv(image, 'images/test/image.jpg')
+
+        #return jsonify({ "message": "zucksess" }), 200 
+          
+
+        image, image_list, bool_list = actions.create_connected_component(data)
+    
+        return jsonify({ "message": bool_list }), 200   
