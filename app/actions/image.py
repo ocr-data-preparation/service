@@ -253,7 +253,6 @@ def create_connected_component(image):
                 y2 += round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR)
                 
                 connected_component_img = [row[x1:x2+1] for row in original_image][y1:y2+1]
-                save_image_cv(connected_component_img, 'images/a' + str(i) + str(j) + '.jpg')
                 
                 connected_component_img, x_border_size, y_border_size, not_enough = append_white(connected_component_img)
                 
