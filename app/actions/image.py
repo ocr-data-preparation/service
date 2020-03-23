@@ -79,7 +79,6 @@ def slice_image(image):
             # count +=1
             left += slice_size_horz
 
-
         slice_list.append(row_slice_list)
         upper += slice_size_vert
     
@@ -88,6 +87,16 @@ def slice_image(image):
 
     return img, slice_list, img_size
 
+
+#resize image: tambahin ke tempat ingin dipakai
+def resize(x):
+    # Opens a image in RGB mode  
+    im = Image.open(r"file[ath")  
+  
+    newsize = (x, x) 
+    im1 = im1.resize(newsize) 
+    # Shows the image in image viewer  
+    im1.show() 
 
 def remove_borders(image):
     for i, row in enumerate(image):
