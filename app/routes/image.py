@@ -2,7 +2,6 @@ import flask
 from flask import request, Blueprint, jsonify
 import os
 from datetime import datetime
-
 from actions import image as actions
 
 image_blueprint = Blueprint('image', __name__)
@@ -44,11 +43,13 @@ def create_connected_component():
 @image_blueprint.route('/submit', methods=["POST"])
 def submit():
         data = request.files['image'] 
-        #actions.save_image_cv(image, 'images/test/image.jpg')
+        #cropping image
+                       
 
-        #return jsonify({ "message": "zucksess" }), 200 
-          
-
+        #generate data for return        
         image, image_list, bool_list = actions.create_connected_component(data)
-    
-        return jsonify({ "message": bool_list }), 200   
+        path = 'images/kotakeun_image.jpg'
+        actions.save_image_cv(image, path )
+
+        
+        return jsonify({ "boolean": bool_list , "image-path":  path}), 200   
