@@ -3,6 +3,9 @@ from flask import request, Blueprint, jsonify
 import os
 from datetime import datetime
 from actions import image as actions
+from actions import scan as scan
+from PIL import Image
+
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -42,12 +45,19 @@ def create_connected_component():
 
 @image_blueprint.route('/submit', methods=["POST"])
 def submit():
-        data = request.files['image'] 
-        #cropping image
-                       
+        data = request.files['image']
+        print(type(data))
 
+        print(data) 
+
+        path = os.path.join("images/temp/", "temp.jpg")
+        data.save(path)
+        #cropping image
+        img = scan.parse_image("images/temp/temp.jpg")               
+        pil_img = Image.fromarray(img)
+  
         #generate data for return        
-        image, image_list, bool_list = actions.create_connected_component(data)
+        image, image_list, bool_list = actions.create_connected_component(pil_img)
         path = 'images/kotakeun_image.jpg'
         actions.save_image_cv(image, path )
 
