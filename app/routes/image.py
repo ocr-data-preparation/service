@@ -30,6 +30,16 @@ def detect_blank():
 
     return jsonify({ "is_blank" : is_blank }), 200
 
+@image_blueprint.route('/save', methods=["POST"])
+def bulk_save_image():
+    path = request.json['path']
+    excludes = request.json['excludes']
+    pixels = request.json['pixels']
+
+    actions.bulk_save(path, excludes, pixels)
+    
+    return jsonify({ "message" : "success" }), 200
+
 @image_blueprint.route('/cc', methods=["POST"])
 def create_connected_component():
     data = request.files['image'] 
