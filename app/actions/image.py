@@ -89,38 +89,15 @@ def slice_image(image):
 
 def bulk_save(path, excludes, pixels):
     img = Image.open(path)
-    width, height = img.size
-
-    upper = height/50
-    left = width/50
-    left_default = width/50
-    slice_size_vert = (height - upper*2)/10
-    slice_size_horz = (width - upper*2)/10
-
-    slices = 10
-
-    count = 1
-    for x in range(slices):
-        left = left_default
-
-        for y in range(slices): 
-            bbox = (left, upper, left +slice_size_horz, upper + slice_size_vert)
-            working_slice = img.crop(bbox)
-            
-            current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(y))
-            filename = secure_filename(current_time)
-            working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
-
-            if(not excludes[x][y]):
-                working_slice.save(working_path)
-            
-            count +=1
-            left += slice_size_horz
-
-        upper += slice_size_vert
     
-    numpy_img = np.array(img) 
-    img = cv.cvtColor(numpy_img, cv.COLOR_RGB2BGR)
+    image, result_image_list, boolean_list = create_connected_component(img)
+
+    for i, row in enumerate(result_image_list):
+        for j, im in enumerate(row):
+            if not excludes[i][j]:
+                im = cv.resize(im, (pixels, pixels))
+                current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(j))
+                save_image_cv(im, "images/"+ str((i+1)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):
