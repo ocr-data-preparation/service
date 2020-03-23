@@ -122,6 +122,16 @@ def bulk_save(path, excludes, pixels):
     numpy_img = np.array(img) 
     img = cv.cvtColor(numpy_img, cv.COLOR_RGB2BGR)
 
+#resize image: tambahin ke tempat ingin dipakai
+def resize(x):
+    # Opens a image in RGB mode  
+    im = Image.open(r"file[ath")  
+  
+    newsize = (x, x) 
+    im1 = im1.resize(newsize) 
+    # Shows the image in image viewer  
+    im1.show() 
+
 def remove_borders(image):
     for i, row in enumerate(image):
         for j, _ in enumerate(row):
