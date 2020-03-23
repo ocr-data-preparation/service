@@ -8,9 +8,9 @@ import imutils
 
 #fungsi membaca sebuah image lalu menggelapkannya untuk mendapatkan silhout garis dari image 
 # lalu membetulkan prespective image setelah silhout digunakan
-def parse_image(image):
+def parse_image(img):
 
-	image = cv2.imread(image)
+	image = cv2.imread(img)
 	ratio = image.shape[0] / 500.0
 	orig = image.copy()
 	image = imutils.resize(image, height = 500)
