@@ -1,8 +1,9 @@
 import flask
 from flask import request, Blueprint, jsonify
-from actions import image as actions
 import os
 from datetime import datetime
+
+from actions import image as actions
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -27,3 +28,15 @@ def detect_blank():
     is_blank = actions.is_blank(data)
 
     return jsonify({ "is_blank" : is_blank }), 200
+
+@image_blueprint.route('/cc', methods=["POST"])
+def create_connected_component():
+    data = request.files['image'] 
+    image, image_list, bool_list = actions.create_connected_component(data)
+    actions.save_image_cv(image, 'images/test/image.jpg')
+    for i, row in enumerate(image_list):
+        for j, element in enumerate(row):
+            blank = str(bool_list[i][j])
+            actions.save_image_cv(element, 'images/test/' + str(i) + '/' + blank + str(j) + '.jpg')
+
+    return jsonify({ "message": "success" }), 200   
