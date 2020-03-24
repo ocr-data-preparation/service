@@ -2,6 +2,7 @@ import flask
 from flask import request, Blueprint, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_cors import cross_origin
 import os
 
 def create_project_blueprint(app):
@@ -28,6 +29,7 @@ def create_project_blueprint(app):
 
     # endpoint to add new project
     @project_blueprint.route("/", methods=["POST"])
+    @cross_origin()
     def add_project():
         project_name = request.json['project_name']
         pixels = request.json['pixels']
@@ -41,6 +43,7 @@ def create_project_blueprint(app):
 
     # endpoint to show all projects
     @project_blueprint.route("/", methods=["GET"])
+    @cross_origin()
     def get_project():
         all_project = Project.query.all()
         result = projects_schema.dump(all_project)
@@ -49,6 +52,7 @@ def create_project_blueprint(app):
 
     # endpoint to get project detail by id
     @project_blueprint.route("/<id>", methods=["GET"])
+    @cross_origin()
     def project_detail(id):
         project = Project.query.get(id)
         
@@ -56,6 +60,7 @@ def create_project_blueprint(app):
 
     # endpoint to update project by id
     @project_blueprint.route("/<id>", methods=["PUT"])
+    @cross_origin()
     def project_update(id):
         project = Project.query.get(id)
         project_name = request.json['project_name']
@@ -69,6 +74,7 @@ def create_project_blueprint(app):
 
     # endpoint to delete project
     @project_blueprint.route("/<id>", methods=["DELETE"])
+    @cross_origin()
     def project_delete(id):
         project = Project.query.get(id)
         db.session.delete(project)

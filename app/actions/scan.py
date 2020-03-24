@@ -1,7 +1,8 @@
 # belum dijadiin kelas jadi belum bisa di pake buat ke server
-from transform import four_point_transform
+from actions.transform import four_point_transform
 from skimage.filters import threshold_local
 import numpy as np
+import argparse
 import cv2
 import imutils
 
@@ -10,7 +11,9 @@ import imutils
 # lalu membetulkan prespective image setelah silhout digunakan
 def parse_image(img):
 
+
 	image = cv2.imread(img)
+	
 	ratio = image.shape[0] / 500.0
 	orig = image.copy()
 	image = imutils.resize(image, height = 500)
@@ -30,9 +33,10 @@ def parse_image(img):
 			screenCnt = approx
 			break
 
+
 	if(screenCnt is not None):
 		warped = four_point_transform(orig, screenCnt.reshape(4, 2) * ratio)
 		#ngenulis ke file baru yang namanya transformed.jpeg
-		#cv2.imwrite("transformed.jpeg",warped)
+		#cv2.imwrite("images/temp/transformed.jpeg",warped)
 		return warped
 

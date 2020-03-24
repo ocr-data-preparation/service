@@ -11,6 +11,7 @@ import cv2 as cv
 import numpy as np
 import copy
 
+
 N_ROW = 10
 N_COLLUMN = 14
 SQUARE_MARGIN_DIVISION_FACTOR = 10
@@ -41,7 +42,6 @@ def is_blank(image):
 
 def slice_image(image):
     path = save_image(image)
-
     img = Image.open(path)
     img_size = img.size
     width, height = img.size
@@ -87,6 +87,17 @@ def slice_image(image):
 
     return img, slice_list, img_size
 
+def bulk_save(path, includes, pixels):
+    img = Image.open(path)
+    
+    image, result_image_list, boolean_list = create_connected_component(img)
+
+    for i, row in enumerate(result_image_list):
+        for j, im in enumerate(row):
+            if includes[i][j]:
+                im = cv.resize(im, (pixels, pixels))
+                current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(j))
+                save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):
@@ -241,9 +252,7 @@ def create_connected_component(image):
                 y1 += round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR) 
                 y2 += round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR)
                 
-                connected_component_img = [row[x1:x2+1] for row in original_image][y1:y2+1]
-                save_image_cv(connected_component_img, 'images/a' + str(i) + str(j) + '.jpg')
-                
+                connected_component_img = [row[x1:x2+1] for row in original_image][y1:y2+1]                
                 connected_component_img, x_border_size, y_border_size, not_enough = append_white(connected_component_img)
                 
                 x1 -= x_border_size
