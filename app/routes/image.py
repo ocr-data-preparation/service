@@ -1,4 +1,5 @@
 import flask
+import json
 from flask import request, Blueprint, jsonify
 import os
 from datetime import datetime
@@ -31,6 +32,16 @@ def detect_blank():
 
     return jsonify({ "is_blank" : is_blank }), 200
 
+@image_blueprint.route('/save', methods=["POST"])
+def bulk_save_image():
+    path = request.json['path']
+    excludes = request.json['excludes']
+    pixels = request.json['pixels']
+
+    actions.bulk_save(path, excludes, pixels)
+    
+    return jsonify({ "message" : "success" }), 200
+
 @image_blueprint.route('/cc', methods=["POST"])
 def create_connected_component():
     data = request.files['image'] 
@@ -45,21 +56,19 @@ def create_connected_component():
 
 @image_blueprint.route('/submit', methods=["POST"])
 def submit():
-        data = request.files['image']
-        print(type(data))
+    data = request.files['image']
 
-        print(data) 
+    filename = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
 
-        path = os.path.join("images/temp/", "temp.jpg")
-        data.save(path)
-        #cropping image
-        img = scan.parse_image("images/temp/temp.jpg")               
-        pil_img = Image.fromarray(img)
-  
-        #generate data for return        
-        image, image_list, bool_list = actions.create_connected_component(pil_img)
-        path = 'images/kotakeun_image.jpg'
-        actions.save_image_cv(image, path )
+    path = os.path.join("images/", filename + ".jpg")
+    data.save(path)
+    #cropping image
+    img = scan.parse_image("images/" + filename + ".jpg")               
+    pil_img = Image.fromarray(img)
 
-        
-        return jsonify({ "boolean": bool_list , "image-path":  path}), 200   
+    #generate data for return        
+    image, image_list, bool_list = actions.create_connected_component(pil_img)
+    squared_path = 'images/squared/' + filename + '.jpg'
+    actions.save_image_cv(image, path)
+
+    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
