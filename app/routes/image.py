@@ -2,6 +2,7 @@ import flask
 import json
 from flask import request, Blueprint, jsonify
 import os
+from numpy import flip, array
 from datetime import datetime
 from actions import image as actions
 from actions import scan as scan
@@ -64,7 +65,7 @@ def submit():
     data.save(path)
     #cropping image
     img = scan.parse_image("images/" + filename + ".jpg")               
-    pil_img = Image.fromarray(img)
+    pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
 
     #generate data for return        
     image, image_list, bool_list = actions.create_connected_component(pil_img)
