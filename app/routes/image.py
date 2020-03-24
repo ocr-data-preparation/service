@@ -3,8 +3,10 @@ import json
 from flask import request, Blueprint, jsonify
 import os
 from datetime import datetime
-
 from actions import image as actions
+from actions import scan as scan
+from PIL import Image
+
 
 image_blueprint = Blueprint('image', __name__)
 
@@ -51,3 +53,22 @@ def create_connected_component():
             actions.save_image_cv(element, 'images/test/' + str(i) + '/' + blank + str(j) + '.jpg')
 
     return jsonify({ "message": "success" }), 200   
+
+@image_blueprint.route('/submit', methods=["POST"])
+def submit():
+    data = request.files['image']
+
+    filename = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
+
+    path = os.path.join("images/", filename + ".jpg")
+    data.save(path)
+    #cropping image
+    img = scan.parse_image("images/" + filename + ".jpg")               
+    pil_img = Image.fromarray(img)
+
+    #generate data for return        
+    image, image_list, bool_list = actions.create_connected_component(pil_img)
+    squared_path = 'images/squared/' + filename + '.jpg'
+    actions.save_image_cv(image, path)
+
+    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
