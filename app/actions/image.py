@@ -87,17 +87,17 @@ def slice_image(image):
 
     return img, slice_list, img_size
 
-def bulk_save(path, excludes, pixels):
+def bulk_save(path, includes, pixels):
     img = Image.open(path)
     
     image, result_image_list, boolean_list = create_connected_component(img)
 
     for i, row in enumerate(result_image_list):
         for j, im in enumerate(row):
-            if not excludes[i][j]:
+            if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
                 current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(j))
-                save_image_cv(im, "images/"+ str((i+1)%10) + "/" + current_time + ".jpg")
+                save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):

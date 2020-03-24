@@ -41,10 +41,10 @@ def detect_blank():
 @cross_origin()
 def bulk_save_image():
     path = request.json['path']
-    excludes = request.json['excludes']
+    includes = request.json['includes']
     pixels = request.json['pixels']
 
-    actions.bulk_save(path, excludes, pixels)
+    actions.bulk_save(path, includes, pixels)
     
     return jsonify({ "message" : "success" }), 200
 
@@ -71,7 +71,10 @@ def submit():
     path = os.path.join("images/", filename + ".jpg")
     data.save(path)
     #cropping image
-    img = scan.parse_image("images/" + filename + ".jpg")               
+    img = scan.parse_image("images/" + filename + ".jpg")    
+
+    path = "images/standardize" + filename + ".jpg"
+    actions.save_image_cv(img, path)           
     pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
 
     #generate data for return        
