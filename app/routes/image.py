@@ -69,6 +69,6 @@ def submit():
     #generate data for return        
     image, image_list, bool_list = actions.create_connected_component(pil_img)
     squared_path = 'images/squared/' + filename + '.jpg'
-    actions.save_image_cv(image, path)
+    actions.save_image_cv(image, squared_path)
 
     return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
