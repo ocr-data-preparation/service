@@ -39,7 +39,7 @@ def create_project_blueprint(app):
         db.session.add(new_project)
         db.session.commit()
 
-        return jsonify(success = True)
+        return jsonify(id = new_project.id)
 
     # endpoint to show all projects
     @project_blueprint.route("/", methods=["GET"])
