@@ -35,4 +35,3 @@ def parse_image(img):
 		#ngenulis ke file baru yang namanya transformed.jpeg
 		#cv2.imwrite("transformed.jpeg",warped)
 		return warped
-
