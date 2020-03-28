@@ -21,7 +21,7 @@ APPEND_WHITE_DIVISION_FACTOR = 16
 MINIMUM_APPEND_COLOR = 192
 
 def save_image(image):
-    current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
+    current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S)")
     filename = secure_filename(current_time)
 
     path = os.path.join("images/", filename + ".jpg")
@@ -71,7 +71,7 @@ def slice_image(image):
 
             row_slice_list.append(working_slice)
 
-            # current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H:%M:%S)")
+            # current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H-%M-%S)")
             # filename = secure_filename(current_time)
             # working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
 
@@ -97,7 +97,7 @@ def bulk_save(path, includes, pixels):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
-                current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(j))
+                current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
                 save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
