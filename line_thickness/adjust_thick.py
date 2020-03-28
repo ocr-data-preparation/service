@@ -2,12 +2,13 @@ import cv2
 import numpy as np
 # dilation memperbanyak putih pada objek
 # erotion memperbanyak hitam pada objek
-def adjust_thick(img,thickness,tipe):
-    image = cv2.imread(img)
-    kernel = np.ones((thickness),np.uint8)
-    if (tipe == "erosion"):
-        result = cv2.erode(image,kernel,iterations=1)
-    elif (tipe == "dilation"):
+def adjust_thick(img,thickness):
+    
+    if (thickness>0):
+        kernel = np.ones((thickness),np.uint8)
+        result = cv2.erode(img,kernel,iterations=1)
+    elif (thickness<0):
+        kernel = np.ones((-1*thickness),np.uint8)
         result = cv2.dilate(img,kernel,iterations=1)
     return result
 # img = cv2.imread("angka.png",0)
