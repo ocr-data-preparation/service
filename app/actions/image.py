@@ -15,12 +15,13 @@ import copy
 N_ROW = 10
 N_COLLUMN = 14
 SQUARE_MARGIN_DIVISION_FACTOR = 10
-CONNECTED_COMPONENT_OFFSET = 3
+CONNECTED_COMPONENT_STARTING_OFFSET = 0 # Minimum start of connected component
+CONNECTED_COMPONENT_DEVIATION = 0.15 # Deviation added to connected component
 APPEND_WHITE_DIVISION_FACTOR = 16
 MINIMUM_APPEND_COLOR = 192
 
 def save_image(image):
-    current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
+    current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S)")
     filename = secure_filename(current_time)
 
     path = os.path.join("images/", filename + ".jpg")
@@ -70,7 +71,7 @@ def slice_image(image):
 
             row_slice_list.append(working_slice)
 
-            # current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H:%M:%S)")
+            # current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H-%M-%S)")
             # filename = secure_filename(current_time)
             # working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
 
@@ -96,7 +97,7 @@ def bulk_save(path, includes, pixels):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
-                current_time = datetime.now().strftime("%d-%b-%Y (%H:%M:%S) " + str(j))
+                current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
                 save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
@@ -116,7 +117,7 @@ def remove_borders(image):
                 cv.floodFill(image, None, seedPoint=(j,i), newVal=[255, 255, 255], loDiff=(50, 50, 50, 50), upDiff=(50, 50, 50, 50))
     return image
 
-def get_corner(component_list):
+def get_points(component_list):
     x1 = -1
     x2 = -1
     y1 = -1
@@ -132,14 +133,17 @@ def get_corner(component_list):
                     y1 = i
                 if y2 == -1 or i > y2:
                     y2 = i
-    return x1 - CONNECTED_COMPONENT_OFFSET, x2 + CONNECTED_COMPONENT_OFFSET, y1 - CONNECTED_COMPONENT_OFFSET, y2 + CONNECTED_COMPONENT_OFFSET
+    return max(x1 - round(CONNECTED_COMPONENT_DEVIATION * len(component_list[0])), round(CONNECTED_COMPONENT_STARTING_OFFSET * len(component_list[0]))), \
+    min(x2 + round(CONNECTED_COMPONENT_DEVIATION * len(component_list[0])), round((1 - CONNECTED_COMPONENT_STARTING_OFFSET) * len(component_list[0])) - 1),  \
+    max(y1 - round(CONNECTED_COMPONENT_DEVIATION * len(component_list)), round(CONNECTED_COMPONENT_STARTING_OFFSET * len(component_list))), \
+    min(y2 + round(CONNECTED_COMPONENT_DEVIATION * len(component_list)), round((1 - CONNECTED_COMPONENT_STARTING_OFFSET) * len(component_list)) - 1)
 
 
 def get_connected_component_corners(image):
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     _,th = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
     num_labels, labels_im = cv.connectedComponents(th)
-    return get_corner(labels_im)
+    return get_points(labels_im)
 
 
 def get_border_color(connected_component_img):
@@ -263,7 +267,7 @@ def create_connected_component(image):
                     x2 += 1
                 elif not_enough == 'width':
                     y2 += 1 
-                cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 255, 0), 1)
+                cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
                 image = insert_into_image(image, connected_component_img, x1, y1)
                 check_insert_image(image, connected_component_img, x1, y1)
                 row_result_image_list.append(connected_component_img)
