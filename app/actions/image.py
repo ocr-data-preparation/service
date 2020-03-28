@@ -263,7 +263,7 @@ def create_connected_component(image):
                     x2 += 1
                 elif not_enough == 'width':
                     y2 += 1 
-                cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 255, 0), 1)
+                cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
                 image = insert_into_image(image, connected_component_img, x1, y1)
                 check_insert_image(image, connected_component_img, x1, y1)
                 row_result_image_list.append(connected_component_img)
