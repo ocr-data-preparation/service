@@ -282,3 +282,12 @@ def create_connected_component(image):
 
 def save_image_cv(image, path):
     cv.imwrite(path, np.array(image))
+
+def adjust_thick(img,thickness):
+    if (thickness>0):
+        kernel = np.ones((thickness),np.uint8)
+        result = cv.erode(img,kernel,iterations=1)
+    elif (thickness<0):
+        kernel = np.ones((-1*thickness),np.uint8)
+        result = cv.dilate(img,kernel,iterations=1)
+    return result
