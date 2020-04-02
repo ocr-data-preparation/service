@@ -273,18 +273,15 @@ def create_connected_component_slices(image, color, **kwargs):
                 x2 = slice_border[i][j]['right']
                 y1 = slice_border[i][j]['up'] 
                 y2 = slice_border[i][j]['down']
-                
-                cv.rectangle(image, (x1-1, y1-1),  (x2+1, y2+1), (0, 0, 255), 1)
+            
                 result_image = slice_element
-                if not color:
-                    result_image = adjust_thick(result_image, kwargs.get('thickness', 0))
 
             else:
                 row_boolean_list.append(True)
                 x1, x2, y1, y2 = get_connected_component_corners(slice_element, color) 
                 
                 connected_component_img = [row[x1:x2+1] for row in slice_element][y1:y2+1]                
-                connected_component_img, x_border_size, y_border_size, not_enough = append_white(connected_component_img, color)
+                result_image, x_border_size, y_border_size, not_enough = append_white(connected_component_img, color)
                 
                 x1 += slice_border[i][j]['left']
                 x2 += slice_border[i][j]['left']
@@ -300,12 +297,11 @@ def create_connected_component_slices(image, color, **kwargs):
                 elif not_enough == 'width':
                     y2 += 1 
 
-                if not color:
-                    connected_component_img = adjust_thick(connected_component_img, kwargs.get('thickness', 0))
+            if not color:
+                result_image = adjust_thick(result_image, kwargs.get('thickness', 1))
 
-                cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
-                image = insert_into_image(image, connected_component_img, x1, y1, color)
-                result_image = connected_component_img
+            cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
+            image = insert_into_image(image, connected_component_img, x1, y1, color)
             
             row_result_image_list.append(result_image)
 
@@ -314,13 +310,57 @@ def create_connected_component_slices(image, color, **kwargs):
     
     return image, result_image_list, boolean_list
 
+def create_box_slices(image, color, **kwargs):
+    original_image, slice_list, size, slice_border = slice_image(image)
+    
+    if not color:
+        original_image, slice_list = convert_to_black_white(original_image, slice_list)
+        if kwargs.get('denoise_type', 'none') == 'auto':
+            denoise_list(slice_list, 'auto')
+        elif kwargs.get('denoise_type', 'none') == 'manual':
+            denoise_list(slice_list, 'manual', window_size=kwargs.get('window_size', 0))                
+    
+    width, height = size
+
+    image = copy.deepcopy(original_image)
+
+    boolean_list = []
+    result_image_list = []
+    for i, row in enumerate(slice_list):
+        
+        row_boolean_list = []
+        row_result_image_list = []
+
+        for j, slice_element in enumerate(row):
+            
+            if is_blank(slice_element, color):
+                row_boolean_list.append(False)
+            else:
+                row_boolean_list.append(True)
+            
+            x1 = slice_border[i][j]['left']
+            x2 = slice_border[i][j]['right']
+            y1 = slice_border[i][j]['up'] 
+            y2 = slice_border[i][j]['down']
+            
+            result_image = slice_element
+            
+            if not color:
+                result_image = adjust_thick(result_image, kwargs.get('thickness', 1))
+            
+            cv.rectangle(image, (x1-1, y1-1),  (x2+1, y2+1), (0, 0, 255), 1)
+            image = insert_into_image(image, result_image, x1, y1, color)
+            row_result_image_list.append(result_image)
+
+        boolean_list.append(row_boolean_list)
+        result_image_list.append(row_result_image_list)
+    
+    return image, result_image_list, boolean_list
 
 def save_image_cv(image, path):
     cv.imwrite(path, np.array(image))
 
-
-
-def denoising(img, **kwargs):
+def denoising(img, **kwargs):   
     #consume opencv image without window size
     #eturn denoised opencv image
 
@@ -332,6 +372,7 @@ def denoising(img, **kwargs):
     return dst
 
 def adjust_thick(img,thickness):
+    result = img
     if (thickness>0):
         kernel = np.ones((thickness),np.uint8)
         result = cv.erode(img,kernel,iterations=1)
