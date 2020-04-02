@@ -37,14 +37,33 @@ def detect_blank():
 
     return jsonify({ "is_blank" : is_blank }), 200
 
-@image_blueprint.route('/save', methods=["POST"])
+
+@image_blueprint.route('/save/color', methods=["POST"])
 @cross_origin()
-def bulk_save_image():
+def bulk_save_image_color():
     path = request.json['path']
     includes = request.json['includes']
     pixels = request.json['pixels']
+    slice_type = request.json['slice_type']
+    
 
-    actions.bulk_save(path, includes, pixels)
+    actions.bulk_save(path, includes, pixels, slice_type, True)
+    
+    return jsonify({ "message" : "success" }), 200
+
+@image_blueprint.route('/save/blackwhite', methods=["POST"])
+@cross_origin()
+def bulk_save_image_blackwhite():
+    path = request.json['path']
+    includes = request.json['includes']
+    pixels = request.json['pixels']
+    slice_type = request.json['slice_type']
+    thickness = request.json['thickness']
+    denoise_type = request.json['denoise_type']
+    window_size = request.json['window_size']
+    
+
+    actions.bulk_save(path, includes, pixels, slice_type, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
     
     return jsonify({ "message" : "success" }), 200
 
