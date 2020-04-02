@@ -283,6 +283,37 @@ def create_connected_component(image):
 def save_image_cv(image, path):
     cv.imwrite(path, np.array(image))
 
+
+
+def denoising(img):
+    #consume opencv image without window size
+    #eturn denoised opencv image
+
+    b,g,r = cv2.split(img)           # get b,g,r
+    rgb_img = cv2.merge([r,g,b])     # switch it to rgb
+
+    # Denoising
+    dst = cv2.fastNlMeansDenoising(img,None,10,7,21)
+    return dst
+
+
+def denoising(img,window_size):
+    #consume opencv image and window size
+    #return denoised opencv image
+    b,g,r = cv2.split(img)           # get b,g,r
+    rgb_img = cv2.merge([r,g,b])     # switch it to rgb
+
+    # Denoising
+    dst = cv2.fastNlMeansDenoising(img,None,10,7,window_size)
+    return dst
+
+    # b,g,r = cv2.split(dst)           # get b,g,r
+    # rgb_dst = cv2.merge([r,g,b])     # switch it to rgb
+
+    # plt.subplot(211),plt.imshow(rgb_img)
+    # plt.subplot(212),plt.imshow(rgb_dst)
+    # plt.show()
+
 def adjust_thick(img,thickness):
     if (thickness>0):
         kernel = np.ones((thickness),np.uint8)
@@ -291,3 +322,4 @@ def adjust_thick(img,thickness):
         kernel = np.ones((-1*thickness),np.uint8)
         result = cv.dilate(img,kernel,iterations=1)
     return result
+
