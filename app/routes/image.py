@@ -66,7 +66,7 @@ def create_connected_component():
 def submit():
     data = request.files['image']
 
-    filename = datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
+    filename = datetime.now().strftime("%d-%b-%Y (%H-%M-%S)")
 
     path = os.path.join("images/", filename + ".jpg")
     data.save(path)
