@@ -16,7 +16,7 @@ N_ROW = 10
 N_COLLUMN = 14
 SQUARE_MARGIN_DIVISION_FACTOR = 10
 CONNECTED_COMPONENT_STARTING_OFFSET = 0 # Minimum start of connected component
-CONNECTED_COMPONENT_DEVIATION = 0.15 # Deviation added to connected component
+CONNECTED_COMPONENT_DEVIATION = 0 # Deviation added to connected component
 APPEND_WHITE_DIVISION_FACTOR = 16
 MINIMUM_APPEND_COLOR = 192
 
@@ -118,14 +118,15 @@ def remove_borders(image):
                 cv.floodFill(image, None, seedPoint=(j,i), newVal=[255, 255, 255], loDiff=(50, 50, 50, 50), upDiff=(50, 50, 50, 50))
     return image
 
-def get_points(component_list):
+def get_points(component_list, size_list):
     x1 = -1
     x2 = -1
     y1 = -1
     y2 = -1
+    label = np.argmax(size_list[1:]) + 1
     for i, row in enumerate(component_list):
         for j, element in enumerate(row):
-            if element == 0:
+            if element == label:
                 if x1 == -1 or j < x1:
                     x1 = j
                 if x2 == -1 or j > x2:
@@ -144,11 +145,10 @@ def get_connected_component_corners(image, color):
     if color:
         image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         _, th = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
-        _, labels_im = cv.connectedComponents(th)
-        return get_points(labels_im)
+        _, labels_im, stats, _ = cv.connectedComponentsWithStats(cv.bitwise_not(th))
     else:
-        _, labels_im = cv.connectedComponents(image)
-        return get_points(labels_im)
+        _, labels_im, stats, _ = cv.connectedComponentsWithStats(cv.bitwise_not(image))
+    return get_points(labels_im, stats[:, -1])
 
 
 def get_border_color(connected_component_img):
@@ -263,7 +263,6 @@ def create_connected_component_slices(image, color, **kwargs):
 
             else:
                 row_boolean_list.append(True)
-                print(slice_element)
                 x1, x2, y1, y2 = get_connected_component_corners(slice_element, color) 
                 
                 connected_component_img = [row[x1:x2+1] for row in slice_element][y1:y2+1]                
