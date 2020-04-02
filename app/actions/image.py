@@ -89,16 +89,16 @@ def slice_image(image):
 
     return img, slice_list, img_size, slice_border
 
-def bulk_save(path, includes, pixels, type,  color, **kwargs):
+def bulk_save(path, includes, pixels, slice_type,  color, **kwargs):
     img = Image.open(path)
     
-    if type == 'box':
+    if slice_type == 'box':
         if color:
             image, result_image_list, boolean_list = create_box_slices(img, color)
         else:
             image, result_image_list, boolean_list = create_box_slices(img, color, \
                 thickness=kwargs.get('thickness', 1), denoise_type=kwargs.get('denoise_type', 'none'), window_size=kwargs.get('window_size', 21))
-    elif type == 'number':
+    elif slice_type == 'number':
         if color:
             image, result_image_list, boolean_list = create_connected_component_slices(img, color)
         else:    
