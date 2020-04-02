@@ -52,7 +52,6 @@ def bulk_save_image():
 @cross_origin()
 def create_connected_component():
     data = request.files['image']
-    data = request 
     image, image_list, bool_list = actions.create_connected_component_slices(data)
     actions.save_image_cv(image, 'images/test/image.jpg')
     for i, row in enumerate(image_list):
@@ -74,12 +73,12 @@ def submit():
     #cropping image
     img = scan.parse_image("images/" + filename + ".jpg")    
 
-    path = "images/standardize/" + filename + ".jpg"
+    path = "images/standardized/" + filename + ".jpg"
     actions.save_image_cv(img, path)           
     pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
 
     #generate data for return        
-    image, image_list, bool_list = actions.create_connected_component_slices(pil_img)
+    image, image_list, bool_list = actions.create_connected_component_slices(pil_img, True)
     squared_path = 'images/squared/' + filename + '.jpg'
     actions.save_image_cv(image, squared_path)
 
@@ -88,13 +87,42 @@ def submit():
 @image_blueprint.route('/change/color', methods=["POST"])
 @cross_origin()
 def change_color():
-    pass
+    path = request.json['path']
+    slice_type = request.json['slice_type']
 
-    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200
+    img = Image.open(path)
+
+    #generate data for return        
+    if  (slice_type == 'box'):
+        image, image_list, bool_list = actions.create_box_slices(img, True)
+    elif (slice_type == 'number'):
+        image, image_list, bool_list = actions.create_connected_component_slices(img, True)
+
+    filename = datetime.now().strftime("%d-%b-%Y-(%H-%M-%S)")
+    squared_path = 'images/squared/' + filename + '.jpg'
+    actions.save_image_cv(image, squared_path)
+
+    return jsonify({ "squared_image_path":  squared_path, "includes": bool_list}), 200  
 
 @image_blueprint.route('/change/blackwhite', methods=["POST"])
 @cross_origin()
 def change_blackwhite():
-    pass
+    path = request.json['path']
+    slice_type = request.json['slice_type']
+    thickness = request.json['thickness']
+    denoise_type = request.json['denoise_type']
+    window_size = request.json['window_size']
+    
+    img = Image.open(path)
 
-    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
+    #generate data for return        
+    if  (slice_type == 'box'):
+        image, image_list, bool_list = actions.create_box_slices(img, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
+    elif (slice_type == 'number'):
+        image, image_list, bool_list = actions.create_connected_component_slices(img, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
+
+    filename = datetime.now().strftime("%d-%b-%Y-(%H-%M-%S)")
+    squared_path = 'images/squared/' + filename + '.jpg'
+    actions.save_image_cv(image, squared_path)
+
+    return jsonify({ "squared_image_path":  squared_path, "includes": bool_list}), 200   
