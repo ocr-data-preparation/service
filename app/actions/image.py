@@ -259,7 +259,9 @@ def create_connected_component_slices(image, color, **kwargs):
                 y2 = slice_border[i][j]['down']
                 
                 cv.rectangle(image, (x1-1, y1-1),  (x2+1, y2+1), (0, 0, 255), 1)
-                row_result_image_list.append(slice_element)
+                result_image = slice_element
+                if not color:
+                    result_image = adjust_thick(result_image, kwargs.get('thickness', 0))
 
             else:
                 row_boolean_list.append(True)
@@ -282,9 +284,14 @@ def create_connected_component_slices(image, color, **kwargs):
                 elif not_enough == 'width':
                     y2 += 1 
 
+                if not color:
+                    connected_component_img = adjust_thick(connected_component_img, kwargs.get('thickness', 0))
+
                 cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
                 image = insert_into_image(image, connected_component_img, x1, y1, color)
-                row_result_image_list.append(connected_component_img)
+                result_image = connected_component_img
+            
+            row_result_image_list.append(result_image)
 
         boolean_list.append(row_boolean_list)
         result_image_list.append(row_result_image_list)
