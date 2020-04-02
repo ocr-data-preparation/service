@@ -51,8 +51,9 @@ def bulk_save_image():
 @image_blueprint.route('/cc', methods=["POST"])
 @cross_origin()
 def create_connected_component():
-    data = request.files['image'] 
-    image, image_list, bool_list = actions.create_connected_component(data)
+    data = request.files['image']
+    data = request 
+    image, image_list, bool_list = actions.create_connected_component_slices(data)
     actions.save_image_cv(image, 'images/test/image.jpg')
     for i, row in enumerate(image_list):
         for j, element in enumerate(row):
@@ -66,20 +67,34 @@ def create_connected_component():
 def submit():
     data = request.files['image']
 
-    filename = datetime.now().strftime("%d-%b-%Y (%H-%M-%S)")
+    filename = datetime.now().strftime("%d-%b-%Y-(%H-%M-%S)")
 
     path = os.path.join("images/", filename + ".jpg")
     data.save(path)
     #cropping image
     img = scan.parse_image("images/" + filename + ".jpg")    
 
-    path = "images/standardize" + filename + ".jpg"
+    path = "images/standardize/" + filename + ".jpg"
     actions.save_image_cv(img, path)           
     pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
 
     #generate data for return        
-    image, image_list, bool_list = actions.create_connected_component(pil_img)
+    image, image_list, bool_list = actions.create_connected_component_slices(pil_img)
     squared_path = 'images/squared/' + filename + '.jpg'
     actions.save_image_cv(image, squared_path)
+
+    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
+
+@image_blueprint.route('/change/color', methods=["POST"])
+@cross_origin()
+def change_color():
+    pass
+
+    return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200
+
+@image_blueprint.route('/change/blackwhite', methods=["POST"])
+@cross_origin()
+def change_blackwhite():
+    pass
 
     return jsonify({ "squared_image_path":  squared_path, "path": path, "excludes": bool_list}), 200   
