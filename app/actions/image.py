@@ -71,13 +71,6 @@ def slice_image(image):
 
             row_slice_list.append(working_slice)
 
-            # current_time = datetime.now().strftime(str(y) + " - %d-%b-%Y (%H-%M-%S)")
-            # filename = secure_filename(current_time)
-            # working_path = os.path.join("images/"+ str((x+1)%10) +"/", filename + ".jpg")
-
-            # temp_working_slice.save(working_path)
-            
-            # count +=1
             left += slice_size_horz
 
         slice_list.append(row_slice_list)
@@ -85,8 +78,13 @@ def slice_image(image):
     
     numpy_img = np.array(img) 
     img = cv.cvtColor(numpy_img, cv.COLOR_RGB2BGR)
+    slice_border = [[{'left' : round(slice_size_horz * j + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), \
+                    'up' : round(slice_size_vert * i + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), \
+                    'right' : round(slice_size_horz * (j + 1) - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), \
+                    'down' : round(slice_size_vert * (i + 1) - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR)} \
+                    for j in range(collumn_slices)] for i in range(row_slices)]
 
-    return img, slice_list, img_size
+    return img, slice_list, img_size, slice_border
 
 def bulk_save(path, includes, pixels):
     img = Image.open(path)
@@ -97,7 +95,7 @@ def bulk_save(path, includes, pixels):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
-                current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
+                current_time = datetime.now().strftime("%d-%b-%Y(%H-%M-%S) " + str(j))
                 save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
 #resize image: tambahin ke tempat ingin dipakai
@@ -217,15 +215,11 @@ def check_insert_image(image, content, xstart, ystart):
             except IndexError:
                 continue
 
-def create_connected_component(image):
-    original_image, slice_list, size = slice_image(image)
+def create_connected_component_slices(image):
+    original_image, slice_list, size, slice_border = slice_image(image)
     width, height = size
 
     image = copy.deepcopy(original_image)
-
-    upper = 0
-    slice_size_vert = round(height/N_ROW)
-    slice_size_horz = round(width/N_COLLUMN)
 
     boolean_list = []
     result_image_list = []
@@ -233,16 +227,15 @@ def create_connected_component(image):
         
         row_boolean_list = []
         row_result_image_list = []
-        left = 0
 
         for j, slice_element in enumerate(row):
             if is_blank((slice_element)):
                 row_boolean_list.append(False)
                 
-                x1 = round(left + slice_size_horz / 8)
-                x2 = round(left +  slice_size_horz * 7 / 8)
-                y1 = round(upper + slice_size_vert / 8) 
-                y2 = round(upper + slice_size_vert * 7 / 8)
+                x1 = slice_border[i][j]['left']
+                x2 = slice_border[i][j]['right']
+                y1 = slice_border[i][j]['up'] 
+                y2 = slice_border[i][j]['down']
                 
                 cv.rectangle(image, (x1-1, y1-1),  (x2+1, y2+1), (0, 0, 255), 1)
                 row_result_image_list.append([row[x1:x2+1] for row in original_image][y1:y2+1])
@@ -251,10 +244,10 @@ def create_connected_component(image):
                 row_boolean_list.append(True)
         
                 x1, x2, y1, y2 = get_connected_component_corners((slice_element)) 
-                x1 += round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR)
-                x2 += round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR)
-                y1 += round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR) 
-                y2 += round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR)
+                x1 += slice_border[i][j]['left']
+                x2 += slice_border[i][j]['left']
+                y1 += slice_border[i][j]['up'] 
+                y2 += slice_border[i][j]['up']
                 
                 connected_component_img = [row[x1:x2+1] for row in original_image][y1:y2+1]                
                 connected_component_img, x_border_size, y_border_size, not_enough = append_white(connected_component_img)
@@ -272,13 +265,11 @@ def create_connected_component(image):
                 check_insert_image(image, connected_component_img, x1, y1)
                 row_result_image_list.append(connected_component_img)
 
-            left = left + slice_size_horz
-
-        upper = upper + slice_size_vert
         boolean_list.append(row_boolean_list)
         result_image_list.append(row_result_image_list)
     
     return image, result_image_list, boolean_list
+
 
 def save_image_cv(image, path):
     cv.imwrite(path, np.array(image))
