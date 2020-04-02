@@ -234,10 +234,26 @@ def convert_to_black_white(image, slice_list):
     return image, slice_list
 
 
+def denoise_list(slice_list, type, **kwargs):
+    for i in range(len(slice_list)):
+        for j in range(len(slice_list[i])):
+            if type == 'auto':
+                slice_list[i][j] = denoising(slice_list[i][j])
+            elif type == 'manual':
+                slice_list[i][j] = denoising(slice_list[i][j], window_size=kwargs.get('window_size', 0))
+    return slice_list
+            
+
 def create_connected_component_slices(image, color, **kwargs):
     original_image, slice_list, size, slice_border = slice_image(image)
+    
     if not color:
         original_image, slice_list = convert_to_black_white(original_image, slice_list)
+        if kwargs.get('denoise_type', 'none') == 'auto':
+            denoise_list(slice_list, 'auto')
+        elif kwargs.get('denoise_type', 'none') == 'manual':
+            denoise_list(slice_list, 'manual', window_size=kwargs.get('window_size', 0))                
+    
     width, height = size
 
     image = copy.deepcopy(original_image)
@@ -304,34 +320,16 @@ def save_image_cv(image, path):
 
 
 
-def denoising(img):
+def denoising(img, **kwargs):
     #consume opencv image without window size
     #eturn denoised opencv image
 
-    b,g,r = cv2.split(img)           # get b,g,r
-    rgb_img = cv2.merge([r,g,b])     # switch it to rgb
+    # b,g,r = cv.split(img)           # get b,g,r
+    # rgb_img = cv.merge([r,g,b])     # switch it to rgb
 
     # Denoising
-    dst = cv2.fastNlMeansDenoising(img,None,10,7,21)
+    dst = cv.fastNlMeansDenoising(img,None,10,7,kwargs.get('window_size', 21))
     return dst
-
-
-def denoising(img,window_size):
-    #consume opencv image and window size
-    #return denoised opencv image
-    b,g,r = cv2.split(img)           # get b,g,r
-    rgb_img = cv2.merge([r,g,b])     # switch it to rgb
-
-    # Denoising
-    dst = cv2.fastNlMeansDenoising(img,None,10,7,window_size)
-    return dst
-
-    # b,g,r = cv2.split(dst)           # get b,g,r
-    # rgb_dst = cv2.merge([r,g,b])     # switch it to rgb
-
-    # plt.subplot(211),plt.imshow(rgb_img)
-    # plt.subplot(212),plt.imshow(rgb_dst)
-    # plt.show()
 
 def adjust_thick(img,thickness):
     if (thickness>0):
