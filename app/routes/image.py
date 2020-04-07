@@ -43,8 +43,9 @@ def bulk_save_image():
     path = request.json['path']
     includes = request.json['includes']
     pixels = request.json['pixels']
+    project_id = "tes"
 
-    actions.bulk_save(path, includes, pixels)
+    actions.bulk_save(path, includes, pixels, project_id)
     
     return jsonify({ "message" : "success" }), 200
 

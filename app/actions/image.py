@@ -88,19 +88,30 @@ def slice_image(image):
 
     return img, slice_list, img_size
 
-def bulk_save(path, includes, pixels):
+def bulk_save(path, includes, pixels, project_id):
     img = Image.open(path)
     
     image, result_image_list, boolean_list = create_connected_component(img)
+
+    # BIKIN DIREKTORI BUAT TIAP PROJECT
+    project_dir = "images/" + project_id
+    make_directories(project_dir)
 
     for i, row in enumerate(result_image_list):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
                 current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
-                make_directories("images/" + str((i)%10))
-                save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
 
+                # bikin direktori buat folder tiap angka
+                images_dir = project_dir + "/" + str((i)%10)
+                make_directories(images_dir)
+                
+                # save gambar ke folder masing masing
+                image_filename = images_dir + "/" + current_time + ".jpg"
+                save_image_cv(im, image_filename)
+
+# FUNGSI BUAT BIKIN DIREKTORI
 def make_directories(dirName):
     try:
         os.makedirs(dirName)    
