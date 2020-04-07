@@ -94,7 +94,7 @@ def submit():
     height = img.shape[0]
     width = img.shape[1]
     img2 = scan.parse_image(img)
-    if(height/img2.shape[0] > 0.5*height or width/img2.shape[1] > 0.5*width):
+    if(img2.shape[0] > 0.5*height or img2.shape[1] > 0.5*width):
         img = img2
     path = "images/standardize" + filename + ".jpg"
     actions.save_image_cv(img, path)           
