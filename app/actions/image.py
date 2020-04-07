@@ -98,7 +98,15 @@ def bulk_save(path, includes, pixels):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
                 current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
+                make_directories("images/" + str((i)%10))
                 save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
+
+def make_directories(dirName):
+    try:
+        os.makedirs(dirName)    
+        print("Directory " , dirName ,  " Created ")
+    except FileExistsError:
+        print("Directory " , dirName ,  " already exists")
 
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):
