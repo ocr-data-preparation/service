@@ -89,7 +89,7 @@ def slice_image(image):
 
     return img, slice_list, img_size, slice_border
 
-def bulk_save(path, includes, pixels, slice_type, project_id, color, **kwargs):
+def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
     img = Image.open(path)
     
     if slice_type == 'box':
@@ -113,7 +113,7 @@ def bulk_save(path, includes, pixels, slice_type, project_id, color, **kwargs):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
-                current_time = datetime.now().strftime("%d-%b-%Y(%H-%M-%S) " + str(j))
+                current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
 
                 # bikin direktori buat folder tiap angka
                 images_dir = project_dir + "/" + str((i)%10)
