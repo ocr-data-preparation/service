@@ -10,10 +10,10 @@ import imutils
 #fungsi membaca sebuah image lalu menggelapkannya untuk mendapatkan silhout garis dari image 
 # lalu membetulkan prespective image setelah silhout digunakan
 def parse_image(img):
-
-
-	image = cv2.imread(img)
-	
+	if(isinstance(img,str)):
+		image = cv2.imread(img)
+	else:
+		image = img
 	ratio = image.shape[0] / 500.0
 	orig = image.copy()
 	image = imutils.resize(image, height = 500)
@@ -39,4 +39,3 @@ def parse_image(img):
 		#ngenulis ke file baru yang namanya transformed.jpeg
 		#cv2.imwrite("images/temp/transformed.jpeg",warped)
 		return warped
-

@@ -10,6 +10,7 @@ from random import randint
 import cv2 as cv
 import numpy as np
 import copy
+import imutils
 
 
 N_ROW = 10
@@ -49,7 +50,8 @@ def slice_image(image):
     img = Image.open(path)
     img_size = img.size
     width, height = img.size
-
+    # baru
+    bboxes = split_by_box(path)
     upper = 0
     slice_size_vert = float(height/N_ROW)
     slice_size_horz = float(width/N_COLLUMN)
@@ -64,8 +66,9 @@ def slice_image(image):
         
         row_slice_list = []
         for y in range(collumn_slices): 
-            
-            bbox = (round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), round(left + slice_size_horz - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR))
+            # baru
+            # bbox = (round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), round(left + slice_size_horz - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR))
+            bbox = bboxes[x][y]
             temp_working_slice = img.crop(bbox)
             
             numpy_image = np.array(temp_working_slice)  
@@ -410,4 +413,53 @@ def adjust_thick(img,thickness):
         kernel = np.ones((-1*thickness),np.uint8)
         result = cv.dilate(img,kernel,iterations=1)
     return result
+def split_by_box(path):
+    image = cv.imread(path)
+    gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    thresh = cv.adaptiveThreshold(gray,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV,57,5)
+    cnts = cv.findContours(thresh.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts_sorted = sorted(cnts, key = cv.contourArea, reverse = True)
+    squares = []
+    for c in cnts:
+        peri = cv.arcLength(c,True)
+        approx = cv.approxPolyDP(c, 0.01 * peri, True)
+        if (len(approx) == 4 and  cv.contourArea(approx)>cv.contourArea(cnts_sorted[7])-0.5*cv.contourArea(cnts_sorted[7]) and cv.contourArea(approx)<cv.contourArea(cnts_sorted[7])+0.5*cv.contourArea(cnts[7]) ):
+            squares.append(approx)
+    sorted_square = sort_contours(squares,"top-to-bottom")
+    clasified = [sorted_square[i * 14:(i + 1) * 14] for i in range((len(sorted_square) + 14 - 1) // 14 )]
+    bbox = []
+    for c in clasified:
+        temp = []
+        for el in sort_contours(c,"left-to-right"):
+            x = []
+            y = []
+            for point in el:
+                x.append(point[0][0])
+                y.append(point[0][1])
+            left = min(x)
+            top = min(y)
+            right = max(x)
+            bottom = max(y)
+            temp.append((left+3,top+3,right-3,bottom-3))
+        bbox.append(temp)
+    return bbox
 
+def sort_contours(cnts, method="left-to-right"):
+	# initialize the reverse flag and sort index
+	reverse = False
+	i = 0
+	# handle if we need to sort in reverse
+	if method == "right-to-left" or method == "bottom-to-top":
+		reverse = True
+	# handle if we are sorting against the y-coordinate rather than
+	# the x-coordinate of the bounding box
+	if method == "top-to-bottom" or method == "bottom-to-top":
+		i = 1
+	# construct the list of bounding boxes and sort them from top to
+	# bottom
+	boundingBoxes = [cv.boundingRect(c) for c in cnts]
+	(cnts, boundingBoxes) = zip(*sorted(zip(cnts, boundingBoxes),
+		key=lambda b:b[1][i], reverse=reverse))
+	# return the list of sorted contours and bounding boxes
+	return cnts
