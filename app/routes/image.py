@@ -45,7 +45,7 @@ def bulk_save_image_color():
     includes = request.json['includes']
     pixels = request.json['pixels']
     slice_type = request.json['slice_type']
-    project_id = "tes"
+    project_id = request.json['project']
     
 
     actions.bulk_save(path, project_id, includes, pixels, slice_type, True)
@@ -62,7 +62,7 @@ def bulk_save_image_blackwhite():
     thickness = request.json['thickness']
     denoise_type = request.json['denoise_type']
     window_size = request.json['window_size']
-    project_id = "tes"
+    project_id = request.json['project']
     
     actions.bulk_save(path, project_id, includes, pixels, slice_type, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
     
