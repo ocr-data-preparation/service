@@ -394,7 +394,6 @@ def adjust_thick(img,thickness):
         kernel = np.ones((-1*thickness),np.uint8)
         result = cv.dilate(img,kernel,iterations=1)
     return result
-<<<<<<< HEAD
 def split_by_box(path):
     image = cv.imread(path)
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -445,6 +444,3 @@ def sort_contours(cnts, method="left-to-right"):
 		key=lambda b:b[1][i], reverse=reverse))
 	# return the list of sorted contours and bounding boxes
 	return cnts
-=======
-
->>>>>>> f47fcf33967b92183263ffa367ea8f195ab81bb1
