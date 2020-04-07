@@ -71,8 +71,12 @@ def submit():
     path = os.path.join("images/", filename + ".jpg")
     data.save(path)
     #cropping image
-    img = scan.parse_image("images/" + filename + ".jpg")    
-
+    img = scan.parse_image("images/" + filename + ".jpg")
+    height = img.shape[0]
+    width = img.shape[1]
+    img2 = scan.parse_image(img)
+    if(height/img2.shape[0] > 0.5*height or width/img2.shape[1] > 0.5*width):
+        img = img2
     path = "images/standardize" + filename + ".jpg"
     actions.save_image_cv(img, path)           
     pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
