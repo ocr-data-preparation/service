@@ -307,6 +307,7 @@ def split_by_box(path):
     clasified = [sorted_square[i * 14:(i + 1) * 14] for i in range((len(sorted_square) + 14 - 1) // 14 )]
     bbox = []
     for c in clasified:
+        temp = []
         for el in sort_contours(c,"left-to-right"):
             x = []
             y = []
@@ -317,7 +318,8 @@ def split_by_box(path):
             top = min(y)
             right = max(x)
             bottom = max(y)
-            bbox.append((left+3,top+3,right-3,bottom-3))
+            temp.append((left+3,top+3,right-3,bottom-3))
+        bbox.append(temp)
     return bbox
 
 def sort_contours(cnts, method="left-to-right"):
