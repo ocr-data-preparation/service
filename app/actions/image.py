@@ -312,7 +312,7 @@ def create_connected_component_slices(image, color, **kwargs):
                 result_image = adjust_thick(result_image, kwargs.get('thickness', 1))
 
             cv.rectangle(image, (x1-1, y1-1), (x2+1, y2+1), (0, 0, 255), 1)
-            image = insert_into_image(image, connected_component_img, x1, y1, color)
+            image = insert_into_image(image, result_image, x1, y1, color)
             
             row_result_image_list.append(result_image)
 
