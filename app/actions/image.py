@@ -476,23 +476,19 @@ def split_by_box(path):
         for box in bbox:
             for i in range(len(box)):
                 if(len(box) < 14):
-                    nextbbox = (round(box[i][0]+width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][1],round(box[i][2]+width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][3])
-                    prevbbox = (round(box[i][0]-width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][1],round(box[i][2]-width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][3])
+                    nextbbox = (int(round(box[i][0]+width/14)),box[i][1],int(round(box[i][2]+width/14)),box[i][3])
+                    prevbbox = (int(round(box[i][0]-width/14)),box[i][1],int(round(box[i][2]-width/14)),box[i][3])
                     if(i == 0 and len(box)<14):
                         if(box[i][0] > 20):
                             box.insert(0,prevbbox)
+                    elif(i == 12 and len(box)<14):
+                        box.append(nextbbox)
                     else:
-                        if(abs(box[i][0]-box[i+1][0])>30 and len(box)<14):
+                        if(abs(box[i][0]-box[i+1][0])>(30+int(width/14)) and len(box)<14):
                             box.insert(i+1,nextbbox)
-                        if(abs(box[i][0]-box[i-1][0])>30 and len(box)<14):
+                        if(abs(box[i][0]-box[i-1][0])>(30+int(width/14)) and len(box)<14):
                             box.insert(i,prevbbox)
         return bbox
-
-        
-                    
-            
-
-    
 
 def sort_contours(cnts, method="left-to-right"):
 	# initialize the reverse flag and sort index
@@ -512,3 +508,14 @@ def sort_contours(cnts, method="left-to-right"):
 		key=lambda b:b[1][i], reverse=reverse))
 	# return the list of sorted contours and bounding boxes
 	return cnts
+# bbox = split_by_box("test.jpg")
+# Image = cv.imread("test.jpg")
+# f = open("test.txt","w")
+# for b in bbox:
+#     for el in b:
+#         cv.rectangle(Image,(el[0],el[1]),(el[2],el[3]),(255,0,0),2)
+#     f.write(str(b)+"\n")
+# f.close()
+# cv.imshow("image",imutils.resize(Image,height=500))
+# cv.waitKey(0)
+# cv.destroyAllWindows()
