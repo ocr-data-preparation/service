@@ -396,6 +396,8 @@ def adjust_thick(img,thickness):
     return result
 def split_by_box(path):
     image = cv.imread(path)
+    height = image.shape[0]
+    width = image.shape[1]
     gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     thresh = cv.adaptiveThreshold(gray,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV,57,5)
     cnts = cv.findContours(thresh.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
@@ -407,24 +409,90 @@ def split_by_box(path):
         approx = cv.approxPolyDP(c, 0.01 * peri, True)
         if (len(approx) == 4 and  cv.contourArea(approx)>cv.contourArea(cnts_sorted[7])-0.5*cv.contourArea(cnts_sorted[7]) and cv.contourArea(approx)<cv.contourArea(cnts_sorted[7])+0.5*cv.contourArea(cnts[7]) ):
             squares.append(approx)
+    copy = image.copy()
+    for c in squares:
+        cv.drawContours(copy,[c],0,(255,0,0),2)
     sorted_square = sort_contours(squares,"top-to-bottom")
-    clasified = [sorted_square[i * 14:(i + 1) * 14] for i in range((len(sorted_square) + 14 - 1) // 14 )]
-    bbox = []
-    for c in clasified:
+    if(len(sorted_square) >= 140):
+        clasified = [sorted_square[i * 14:(i + 1) * 14] for i in range((len(sorted_square) + 14 - 1) // 14 )]
+        bbox = []
+        for c in clasified:
+            temp = []
+            for el in sort_contours(c,"left-to-right"):
+                x = []
+                y = []
+                for point in el:
+                    x.append(point[0][0])
+                    y.append(point[0][1])
+                left = min(x)
+                top = min(y)
+                right = max(x)
+                bottom = max(y)
+                temp.append((left+3,top+3,right-3,bottom-3))
+            bbox.append(temp)
+        return bbox
+    else:
+        clasified = []
         temp = []
-        for el in sort_contours(c,"left-to-right"):
-            x = []
-            y = []
-            for point in el:
-                x.append(point[0][0])
-                y.append(point[0][1])
-            left = min(x)
-            top = min(y)
-            right = max(x)
-            bottom = max(y)
-            temp.append((left+3,top+3,right-3,bottom-3))
-        bbox.append(temp)
-    return bbox
+        for s in sorted_square:
+            if(len(temp) == 0):
+                temp.append(s)
+            else:
+                x = []
+                y = []
+                for point in s:
+                    x.append(point[0][0])
+                    y.append(point[0][1])
+                top = min(y)
+                x = []
+                y = []
+                for point in temp[0]:
+                    x.append(point[0][0])
+                    y.append(point[0][1])
+                toptemp = min(y)
+                if(abs(top - toptemp) < 20):
+                    temp.append(s)
+                else:
+                    clasified.append(temp)
+                    temp = []
+                    temp.append(s)
+        clasified.append(temp)
+        bbox = []
+        for c in clasified:
+            # perlu ditambahkan handle kalo ada kotak yang kosong di awal kolom , tengah kolom dan akhir kolom
+            temp = []
+            for el in sort_contours(c,"left-to-right"):
+                x = []
+                y = []
+                for point in el:
+                    x.append(point[0][0])
+                    y.append(point[0][1])
+                left = min(x)
+                top = min(y)
+                right = max(x)
+                bottom = max(y)
+                temp.append((left+3,top+3,right-3,bottom-3))
+            bbox.append(temp)
+        for box in bbox:
+            for i in range(len(box)):
+                if(len(box) < 14):
+                    nextbbox = (round(box[i][0]+width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][1],round(box[i][2]+width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][3])
+                    prevbbox = (round(box[i][0]-width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][1],round(box[i][2]-width/14/SQUARE_MARGIN_DIVISION_FACTOR),box[i][3])
+                    if(i == 0 and len(box)<14):
+                        if(box[i][0] > 20):
+                            box.insert(0,prevbbox)
+                    else:
+                        if(abs(box[i][0]-box[i+1][0])>30 and len(box)<14):
+                            box.insert(i+1,nextbbox)
+                        if(abs(box[i][0]-box[i-1][0])>30 and len(box)<14):
+                            box.insert(i,prevbbox)
+        return bbox
+
+        
+                    
+            
+
+    
 
 def sort_contours(cnts, method="left-to-right"):
 	# initialize the reverse flag and sort index
