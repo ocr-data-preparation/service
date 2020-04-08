@@ -476,8 +476,8 @@ def split_by_box(path):
         for box in bbox:
             for i in range(14):
                 if(len(box) < 14):
-                    nextbbox = (int(round(box[i][0]+width/14)),box[i][1],int(round(box[i][2]+width/14)),box[i][3])
-                    prevbbox = (int(round(box[i][0]-width/14)),box[i][1],int(round(box[i][2]-width/14)),box[i][3])
+                    nextbbox = (int(round(box[i][0]+width/14))+1,box[i][1]+1,int(round(box[i][2]+width/14))+1,box[i][3]+1)
+                    prevbbox = (int(round(box[i][0]-width/14))+1,box[i][1]+1,int(round(box[i][2]-width/14))+1,box[i][3]+1)
                     if(i == 0 and len(box)<14):
                         if(box[i][0] > 20):
                             box.insert(0,prevbbox)
