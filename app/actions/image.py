@@ -474,20 +474,24 @@ def split_by_box(path):
                 temp.append((left+3,top+3,right-3,bottom-3))
             bbox.append(temp)
         for box in bbox:
-            for i in range(14):
-                if(len(box) < 14):
-                    nextbbox = (int(round(box[i][0]+width/14))+1,box[i][1]+1,int(round(box[i][2]+width/14))+1,box[i][3]+1)
-                    prevbbox = (int(round(box[i][0]-width/14))+1,box[i][1]+1,int(round(box[i][2]-width/14))+1,box[i][3]+1)
-                    if(i == 0 and len(box)<14):
-                        if(box[i][0] > 20):
-                            box.insert(0,prevbbox)
-                    elif(i == len(box)-1 and len(box)<14):
-                        box.append(nextbbox)
+            i = 0
+            while i < 14 and len(box)<14:
+                nextbbox = (int(round(box[i][0]+width/14))+1,box[i][1]+1,int(round(box[i][2]+width/14))+1,box[i][3]+1)
+                prevbbox = (int(round(box[i][0]-width/14))+1,box[i][1]+1,int(round(box[i][2]-width/14))+1,box[i][3]+1)
+                if(i == 0 and len(box)<14):
+                    if(box[i][0] > 20):
+                        box.insert(0,prevbbox)
                     else:
-                        if(abs(box[i][0]-box[i+1][0])>(30+int(width/14)) and len(box)<14):
-                            box.insert(i+1,nextbbox)
-                        if(abs(box[i][0]-box[i-1][0])>(30+int(width/14)) and len(box)<14):
-                            box.insert(i,prevbbox)
+                        i+=1
+                elif(i == len(box)-1 and len(box)<14):
+                    box.append(nextbbox)
+                    i +=1
+                else:
+                    if(abs(box[i][0]-box[i+1][0])>(int(1.3*width/14)) and len(box)<14):
+                        box.insert(i+1,nextbbox)
+                    if(abs(box[i][0]-box[i-1][0])>(int(1.3*width/14)) and len(box)<14):
+                        box.insert(i,prevbbox)
+                    i +=1
         return bbox
 
 def sort_contours(cnts, method="left-to-right"):
