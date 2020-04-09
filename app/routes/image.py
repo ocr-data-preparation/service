@@ -97,7 +97,7 @@ def submit():
     img2 = scan.parse_image(img)
     if(img2.shape[0] > 0.5*height or img2.shape[1] > 0.5*width):
         img = img2
-    path = "images/standardize" + filename + ".jpg"
+    path = "images/standardized/" + filename + ".jpg"
     actions.save_image_cv(img, path)           
     pil_img = Image.fromarray(array([[flip(element) for element in row] for row in img])) 
 

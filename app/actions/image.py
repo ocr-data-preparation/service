@@ -68,6 +68,7 @@ def slice_image(image):
         for y in range(collumn_slices): 
             # baru
             # bbox = (round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), round(left + slice_size_horz - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR))
+            print("bboxes ", len(bboxes), " bboxes[x] ", len(bboxes[x]))
             bbox = bboxes[x][y]
             temp_working_slice = img.crop(bbox)
             
