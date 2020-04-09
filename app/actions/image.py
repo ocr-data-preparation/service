@@ -68,6 +68,7 @@ def slice_image(image):
         for y in range(collumn_slices): 
             # baru
             # bbox = (round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), round(left + slice_size_horz - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR))
+            # print("bboxes ", len(bboxes), " bboxes[x] ", len(bboxes[x]))
             bbox = bboxes[x][y]
             temp_working_slice = img.crop(bbox)
             
@@ -92,7 +93,7 @@ def slice_image(image):
 
     return img, slice_list, img_size, slice_border
 
-def bulk_save(path, includes, pixels, slice_type,  color, **kwargs):
+def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
     img = Image.open(path)
     
     if slice_type == 'box':
@@ -108,12 +109,31 @@ def bulk_save(path, includes, pixels, slice_type,  color, **kwargs):
             image, result_image_list, boolean_list = create_connected_component_slices(img, color, \
                 thickness=kwargs.get('thickness', 1), denoise_type=kwargs.get('denoise_type', 'none'), window_size=kwargs.get('window_size', 21))
 
+    # BIKIN DIREKTORI BUAT TIAP PROJECT
+    project_dir = "images/" + project_id
+    make_directories(project_dir)
+
     for i, row in enumerate(result_image_list):
         for j, im in enumerate(row):
             if includes[i][j]:
                 im = cv.resize(im, (pixels, pixels))
-                current_time = datetime.now().strftime("%d-%b-%Y(%H-%M-%S) " + str(j))
-                save_image_cv(im, "images/"+ str((i)%10) + "/" + current_time + ".jpg")
+                current_time = datetime.now().strftime("%d-%b-%Y (%H-%M-%S) " + str(j))
+
+                # bikin direktori buat folder tiap angka
+                images_dir = project_dir + "/" + str((i)%10)
+                make_directories(images_dir)
+                
+                # save gambar ke folder masing masing
+                image_filename = images_dir + "/" + current_time + ".jpg"
+                save_image_cv(im, image_filename)
+
+# FUNGSI BUAT BIKIN DIREKTORI
+def make_directories(dirName):
+    try:
+        os.makedirs(dirName)    
+        print("Directory " , dirName ,  " Created ")
+    except FileExistsError:
+        print("Directory " , dirName ,  " already exists")
 
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):
