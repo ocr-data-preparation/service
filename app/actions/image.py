@@ -135,6 +135,20 @@ def make_directories(dirName):
     except FileExistsError:
         print("Directory " , dirName ,  " already exists")
 
+def delete_directories(dirName):
+    try:
+        os.rmdir(dirName)    
+        print("Directory " , dirName ,  " Deleted ")
+    except FileNotFoundError:
+        print("Directory " , dirName ,  " not exists")
+
+def delete_file(fileName):
+    try:
+        os.remove(fileName)    
+        print("File " , fileName ,  " Deleted ")
+    except FileNotFoundError:
+        print("File " , fileName ,  " not exists")
+
 #resize image: tambahin ke tempat ingin dipakai
 def resize(x):
     # Opens a image in RGB mode  
