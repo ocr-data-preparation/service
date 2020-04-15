@@ -25,7 +25,7 @@ def parse_image(img):
 	cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 	cnts = imutils.grab_contours(cnts)
 	cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
-
+	screenCnt = []
 	for c in cnts:
 		peri = cv2.arcLength(c, True)
 		approx = cv2.approxPolyDP(c, 0.02 * peri, True)
@@ -34,8 +34,10 @@ def parse_image(img):
 			break
 
 
-	if(screenCnt is not None):
+	if(len(screenCnt) != 0):
 		warped = four_point_transform(orig, screenCnt.reshape(4, 2) * ratio)
 		#ngenulis ke file baru yang namanya transformed.jpeg
 		#cv2.imwrite("images/temp/transformed.jpeg",warped)
 		return warped
+	else:
+		return None
