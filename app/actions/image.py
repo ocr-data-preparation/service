@@ -11,6 +11,7 @@ import cv2 as cv
 import numpy as np
 import copy
 import imutils
+import shutil
 
 
 N_ROW = 10
@@ -126,7 +127,12 @@ def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
                 # save gambar ke folder masing masing
                 image_filename = images_dir + "/" + current_time + ".jpg"
                 save_image_cv(im, image_filename)
-
+def clean_dir():
+     delete_directories('images/squared')
+     delete_directories("images/standardized")
+     for filename in os.listdir("images/"):
+         if filename.endswith(".jpg"):
+             delete_file("images/"+filename)   
 # FUNGSI BUAT BIKIN DIREKTORI
 def make_directories(dirName):
     try:
@@ -137,7 +143,7 @@ def make_directories(dirName):
 
 def delete_directories(dirName):
     try:
-        os.rmdir(dirName)    
+        shutil.rmtree(dirName)    
         print("Directory " , dirName ,  " Deleted ")
     except FileNotFoundError:
         print("Directory " , dirName ,  " not exists")
@@ -546,15 +552,3 @@ def sort_contours(cnts, method="left-to-right"):
 		key=lambda b:b[1][i], reverse=reverse))
 	# return the list of sorted contours and bounding boxes
 	return cnts
-# bbox = split_by_box("test1.jpg")
-# Image = cv.imread("test1.jpg")
-# f = open("test.txt","w")
-# for b in bbox:
-#     print(len(b))
-#     for el in b:
-#         cv.rectangle(Image,(el[0],el[1]),(el[2],el[3]),(255,0,0),2)
-#     f.write(str(b)+"\n")
-# f.close()
-# cv.imshow("image",imutils.resize(Image,height=500))
-# cv.waitKey(0)
-# cv.destroyAllWindows()
