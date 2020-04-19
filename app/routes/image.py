@@ -48,7 +48,6 @@ def bulk_save_image_color():
     project_id = request.json['project']
 
     actions.bulk_save(path, project_id, includes, pixels, slice_type, True)
-    actions.clean_dir()    
     return jsonify({ "message" : "success" }), 200
 
 @image_blueprint.route('/save/blackwhite', methods=["POST"])
@@ -62,8 +61,13 @@ def bulk_save_image_blackwhite():
     denoise_type = request.json['denoise_type']
     window_size = request.json['window_size']
     project_id = request.json['project']
-    
     actions.bulk_save(path, project_id, includes, pixels, slice_type, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
+    return jsonify({ "message" : "success" }), 200
+
+# endpoint clean directory
+@image_blueprint.route('/clean', methods=["POST"])
+@cross_origin()
+def clean_directory():
     actions.clean_dir()
     return jsonify({ "message" : "success" }), 200
 
