@@ -155,3 +155,11 @@ def change_blackwhite():
     actions.save_image_cv(image, squared_path)
 
     return jsonify({ "squared_image_path":  squared_path, "includes": bool_list}), 200   
+
+@image_blueprint.route("/statistic",methods=["POST"])
+@cross_origin()
+def statistic():
+    project = request.json("project")
+    statistic = actions.project_statistic(project)
+    return jsonify({project+"_0":statistic[0],project+"_1":statistic[1],project+"_2":statistic[2],project+"_3":statistic[3],project+"_4":statistic[4],
+                    project+"_5":statistic[5],project+"_6":statistic[6],project+"_7":statistic[7],project+"_8":statistic[8],project+"_9":statistic[9],})
