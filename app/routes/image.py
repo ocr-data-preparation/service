@@ -9,7 +9,6 @@ from actions import scan as scan
 from flask_cors import cross_origin
 from PIL import Image
 
-
 image_blueprint = Blueprint('image', __name__)
 
 @image_blueprint.route('/', methods=["POST"])
@@ -162,3 +161,11 @@ def change_blackwhite():
     actions.save_image_cv(image, squared_path)
 
     return jsonify({ "squared_image_path":  squared_path, "includes": bool_list}), 200   
+
+@image_blueprint.route("/statistic",methods=["POST"])
+@cross_origin()
+def statistic():
+    project = request.json("project")
+    statistic = actions.project_statistic(project)
+    return jsonify({"stat_0":statistic[0],"stat_1":statistic[1],"stat_2":statistic[2],"stat_3":statistic[3],"stat_4":statistic[4],
+                    "stat_5":statistic[5],"stat_6":statistic[6],"stat_7":statistic[7],"stat_8":statistic[8],"stat_9":statistic[9],})

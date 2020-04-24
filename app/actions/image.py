@@ -118,13 +118,22 @@ def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
                 # save gambar ke folder masing masing
                 image_filename = images_dir + "/" + current_time + ".jpg"
                 save_image_cv(im, image_filename)
-                
+
 def clean_dir():
      delete_directories('images/squared')
      delete_directories("images/standardized")
      for filename in os.listdir("images/"):
          if filename.endswith(".jpg"):
              delete_file("images/"+filename)   
+             
+def project_statistic(project_name):
+    directory = "images/"+project_name
+    statistic = []
+    for i in range(10):
+        path = directory+str(i)
+        statistic.append(len(os.listdir(path)))
+    return statistic
+
 # FUNGSI BUAT BIKIN DIREKTORI
 def make_directories(dirName):
     try:
