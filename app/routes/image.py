@@ -160,5 +160,5 @@ def change_blackwhite():
 def statistic():
     project = request.json("project")
     statistic = actions.project_statistic(project)
-    return jsonify({project+"_0":statistic[0],project+"_1":statistic[1],project+"_2":statistic[2],project+"_3":statistic[3],project+"_4":statistic[4],
-                    project+"_5":statistic[5],project+"_6":statistic[6],project+"_7":statistic[7],project+"_8":statistic[8],project+"_9":statistic[9],})
+    return jsonify({"stat_0":statistic[0],"stat_1":statistic[1],"stat_2":statistic[2],"stat_3":statistic[3],"stat_4":statistic[4],
+                    "stat_5":statistic[5],"stat_6":statistic[6],"stat_7":statistic[7],"stat_8":statistic[8],"stat_9":statistic[9],})
