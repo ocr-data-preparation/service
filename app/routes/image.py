@@ -45,8 +45,10 @@ def bulk_save_image_color():
     pixels = request.json['pixels']
     slice_type = request.json['slice_type']
     project_id = request.json['project']
+    padding = request.json['padding']
 
-    actions.bulk_save(path, project_id, includes, pixels, slice_type, True)
+    actions.bulk_save(path, project_id, includes, pixels, slice_type, True, padding=padding)
+    
     return jsonify({ "message" : "success" }), 200
 
 @image_blueprint.route('/save/blackwhite', methods=["POST"])
@@ -60,7 +62,10 @@ def bulk_save_image_blackwhite():
     denoise_type = request.json['denoise_type']
     window_size = request.json['window_size']
     project_id = request.json['project']
-    actions.bulk_save(path, project_id, includes, pixels, slice_type, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
+    padding = request.json['padding']
+
+    actions.bulk_save(path, project_id, includes, pixels, slice_type, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size, padding=padding)
+    
     return jsonify({ "message" : "success" }), 200
 
 # endpoint clean directory
@@ -117,6 +122,7 @@ def submit():
 def change_color():
     path = request.json['path']
     slice_type = request.json['slice_type']
+    padding = request.json['padding']
 
     img = Image.open(path)
 
@@ -124,7 +130,7 @@ def change_color():
     if  (slice_type == 'box'):
         image, image_list, bool_list = actions.create_box_slices(img, True)
     elif (slice_type == 'number'):
-        image, image_list, bool_list = actions.create_connected_component_slices(img, True)
+        image, image_list, bool_list = actions.create_connected_component_slices(img, True, padding=padding)
 
     filename = datetime.now().strftime("%d-%b-%Y-(%H-%M-%S)")
     squared_path = 'images/squared/' + filename + '.jpg'
@@ -140,6 +146,7 @@ def change_blackwhite():
     thickness = request.json['thickness']
     denoise_type = request.json['denoise_type']
     window_size = request.json['window_size']
+    padding = request.json['padding']
     
     img = Image.open(path)
 
@@ -147,7 +154,7 @@ def change_blackwhite():
     if  (slice_type == 'box'):
         image, image_list, bool_list = actions.create_box_slices(img, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
     elif (slice_type == 'number'):
-        image, image_list, bool_list = actions.create_connected_component_slices(img, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size)
+        image, image_list, bool_list = actions.create_connected_component_slices(img, False, thickness=thickness, denoise_type=denoise_type, window_size=window_size, padding=padding)
 
     filename = datetime.now().strftime("%d-%b-%Y-(%H-%M-%S)")
     squared_path = 'images/squared/' + filename + '.jpg'

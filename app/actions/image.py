@@ -17,9 +17,6 @@ import shutil
 N_ROW = 10
 N_COLLUMN = 14
 SQUARE_MARGIN_DIVISION_FACTOR = 12
-CONNECTED_COMPONENT_STARTING_OFFSET = 0 # Minimum start of connected component
-CONNECTED_COMPONENT_DEVIATION = 0 # Deviation added to connected component
-APPEND_WHITE_DIVISION_FACTOR = 16
 MINIMUM_APPEND_COLOR = 192
 
 def save_image(image):
@@ -67,9 +64,7 @@ def slice_image(image):
         
         row_slice_list = []
         for y in range(collumn_slices): 
-            # baru
-            # bbox = (round(left + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), round(left + slice_size_horz - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), round(upper + slice_size_vert - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR))
-            # print("bboxes ", len(bboxes), " bboxes[x] ", len(bboxes[x]))
+
             bbox = bboxes[x][y]
             temp_working_slice = img.crop(bbox)
             
@@ -86,13 +81,8 @@ def slice_image(image):
     
     numpy_img = np.array(img) 
     img = cv.cvtColor(numpy_img, cv.COLOR_RGB2BGR)
-    slice_border = [[{'left' : round(slice_size_horz * j + slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), \
-                    'up' : round(slice_size_vert * i + slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR), \
-                    'right' : round(slice_size_horz * (j + 1) - slice_size_horz / SQUARE_MARGIN_DIVISION_FACTOR), \
-                    'down' : round(slice_size_vert * (i + 1) - slice_size_vert / SQUARE_MARGIN_DIVISION_FACTOR)} \
-                    for j in range(collumn_slices)] for i in range(row_slices)]
 
-    return img, slice_list, img_size, slice_border
+    return img, slice_list, img_size, bboxes
 
 def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
     img = Image.open(path)
@@ -105,10 +95,11 @@ def bulk_save(path, project_id, includes, pixels, slice_type,  color, **kwargs):
                 thickness=kwargs.get('thickness', 1), denoise_type=kwargs.get('denoise_type', 'none'), window_size=kwargs.get('window_size', 21))
     elif slice_type == 'number':
         if color:
-            image, result_image_list, boolean_list = create_connected_component_slices(img, color)
+            image, result_image_list, boolean_list = create_connected_component_slices(img, color, padding=kwargs.get('padding', 0))
         else:    
             image, result_image_list, boolean_list = create_connected_component_slices(img, color, \
-                thickness=kwargs.get('thickness', 1), denoise_type=kwargs.get('denoise_type', 'none'), window_size=kwargs.get('window_size', 21))
+                thickness=kwargs.get('thickness', 1), denoise_type=kwargs.get('denoise_type', 'none'), \
+                window_size=kwargs.get('window_size', 21), padding=kwargs.get('padding', 0))
 
     # BIKIN DIREKTORI BUAT TIAP PROJECT
     project_dir = "images/" + project_id
@@ -199,10 +190,7 @@ def get_points(component_list, size_list):
                     y1 = i
                 if y2 == -1 or i > y2:
                     y2 = i
-    return max(x1 - round(CONNECTED_COMPONENT_DEVIATION * len(component_list[0])), round(CONNECTED_COMPONENT_STARTING_OFFSET * len(component_list[0]))), \
-    min(x2 + round(CONNECTED_COMPONENT_DEVIATION * len(component_list[0])), round((1 - CONNECTED_COMPONENT_STARTING_OFFSET) * len(component_list[0])) - 1),  \
-    max(y1 - round(CONNECTED_COMPONENT_DEVIATION * len(component_list)), round(CONNECTED_COMPONENT_STARTING_OFFSET * len(component_list))), \
-    min(y2 + round(CONNECTED_COMPONENT_DEVIATION * len(component_list)), round((1 - CONNECTED_COMPONENT_STARTING_OFFSET) * len(component_list)) - 1)
+    return x1, x2, y1, y2
 
 
 def get_connected_component_corners(image, color):
@@ -233,7 +221,7 @@ def get_border_color(connected_component_img):
         return[MINIMUM_APPEND_COLOR, MINIMUM_APPEND_COLOR, MINIMUM_APPEND_COLOR]
 
 
-def append_white(connected_component_img, color):
+def append_white(connected_component_img, color, padding):
     image_length = len(connected_component_img[0])
     image_width = len(connected_component_img)
     x_border_size = 0
@@ -246,10 +234,10 @@ def append_white(connected_component_img, color):
         border_color = 255
 
     if image_length > image_width:
-        x_border_size = round(image_length / APPEND_WHITE_DIVISION_FACTOR)
+        x_border_size = padding
         y_border_size = round((image_length - image_width + 2 * x_border_size) / 2)
     else:
-        y_border_size = round(image_width / APPEND_WHITE_DIVISION_FACTOR)
+        y_border_size = padding
         x_border_size = round((image_width - image_length + 2 * y_border_size) / 2)
     
     if image_length + 2 * x_border_size < image_width + 2 * y_border_size:
@@ -333,10 +321,10 @@ def create_connected_component_slices(image, color, **kwargs):
             if is_blank(slice_element, color):
                 row_boolean_list.append(False)
                 
-                x1 = slice_border[i][j]['left']
-                x2 = slice_border[i][j]['right']
-                y1 = slice_border[i][j]['up'] 
-                y2 = slice_border[i][j]['down']
+                x1 = slice_border[i][j][0]
+                x2 = slice_border[i][j][2]
+                y1 = slice_border[i][j][1] 
+                y2 = slice_border[i][j][3]
             
                 result_image = slice_element
 
@@ -345,12 +333,12 @@ def create_connected_component_slices(image, color, **kwargs):
                 x1, x2, y1, y2 = get_connected_component_corners(slice_element, color) 
                 
                 connected_component_img = [row[x1:x2+1] for row in slice_element][y1:y2+1]                
-                result_image, x_border_size, y_border_size, not_enough = append_white(connected_component_img, color)
+                result_image, x_border_size, y_border_size, not_enough = append_white(connected_component_img, color, kwargs.get('padding', 0))
                 
-                x1 += slice_border[i][j]['left']
-                x2 += slice_border[i][j]['left']
-                y1 += slice_border[i][j]['up'] 
-                y2 += slice_border[i][j]['up']
+                x1 += slice_border[i][j][0]
+                x2 += slice_border[i][j][0]
+                y1 += slice_border[i][j][1] 
+                y2 += slice_border[i][j][1]
                 
                 x1 -= x_border_size
                 x2 += x_border_size
@@ -402,10 +390,10 @@ def create_box_slices(image, color, **kwargs):
             else:
                 row_boolean_list.append(True)
             
-            x1 = slice_border[i][j]['left']
-            x2 = slice_border[i][j]['right']
-            y1 = slice_border[i][j]['up'] 
-            y2 = slice_border[i][j]['down']
+            x1 = slice_border[i][j][0]
+            x2 = slice_border[i][j][2]
+            y1 = slice_border[i][j][1] 
+            y2 = slice_border[i][j][3]
             
             result_image = slice_element
             
@@ -425,13 +413,7 @@ def save_image_cv(image, path):
     cv.imwrite(path, np.array(image))
 
 def denoising(img, **kwargs):   
-    #consume opencv image without window size
-    #eturn denoised opencv image
-
-    # b,g,r = cv.split(img)           # get b,g,r
-    # rgb_img = cv.merge([r,g,b])     # switch it to rgb
-
-    # Denoising
+    
     dst = cv.fastNlMeansDenoising(img,None,10,7,kwargs.get('window_size', 21))
     return dst
 
@@ -444,6 +426,7 @@ def adjust_thick(img,thickness):
         kernel = np.ones((-1*thickness),np.uint8)
         result = cv.dilate(img,kernel,iterations=1)
     return result
+
 def split_by_box(path):
     image = cv.imread(path)
     height = image.shape[0]
