@@ -9,7 +9,6 @@ from actions import scan as scan
 from flask_cors import cross_origin
 from PIL import Image
 
-
 image_blueprint = Blueprint('image', __name__)
 
 @image_blueprint.route('/', methods=["POST"])
