@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  ocr-data-preparation-service:
+    build: ./
+    image: ocr-data-preparation-service
+    volumes:
+      - ./:/usr/src/app
+    ports:
+      - 3001:3001
