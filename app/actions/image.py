@@ -139,7 +139,7 @@ def project_statistic(project_name):
     directory = "images/"+project_name
     statistic = []
     for i in range(10):
-        path = directory+str(i)
+        path = directory+"/"+str(i)
         statistic.append(len(os.listdir(path)))
     return statistic
 

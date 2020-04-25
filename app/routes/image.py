@@ -158,7 +158,27 @@ def change_blackwhite():
 @image_blueprint.route("/statistic",methods=["POST"])
 @cross_origin()
 def statistic():
-    project = request.json("project")
+    project = request.json["project"]
     statistic = actions.project_statistic(project)
-    return jsonify({"stat_0":statistic[0],"stat_1":statistic[1],"stat_2":statistic[2],"stat_3":statistic[3],"stat_4":statistic[4],
-                    "stat_5":statistic[5],"stat_6":statistic[6],"stat_7":statistic[7],"stat_8":statistic[8],"stat_9":statistic[9],})
+    return jsonify([
+                {   "id": 0,
+                    "amount":statistic[0]}
+                ,{  "id": 1,
+                    "amount":statistic[1]}
+                ,{  "id": 2,
+                    "amount":statistic[2]}
+                ,{  "id": 3,
+                    "amount":statistic[3]}
+                ,{  "id": 4,
+                    "amount":statistic[4]}
+                ,{  "id": 5,
+                    "amount":statistic[5]}
+                ,{  "id": 6,
+                    "amount":statistic[6]}
+                ,{  "id": 7,
+                    "amount":statistic[7]}
+                ,{  "id": 8,
+                    "amount":statistic[8]}
+                ,{  "id": 9,
+                    "amount":statistic[9]} 
+            ])
