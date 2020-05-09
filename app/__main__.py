@@ -37,5 +37,5 @@ def get():
 def download_file(filename):
     return send_from_directory('../images', filename)
 
-app.run(port = config.PORT)
+app.run(port=config.PORT, host='0.0.0.0')
 

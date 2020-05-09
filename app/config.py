@@ -1,3 +1,3 @@
 import os
 
-PORT = os.getenv('PORT') or 3001
+PORT = 3001
