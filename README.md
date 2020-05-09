@@ -1,29 +1,24 @@
 # About
 
-Service to provide resources related to Optical Character Recognition Data Preparation application.
+Service that is required to run the OCR Data Preparation App.
 
-# Development Environment Setup
+# Setup
 
-## Installations
+## Prerequisite
 
-- Install pipenv: `pip install pipenv`.
-- Install dependencies: `pipenv install`.
+The following softwares need to be installed:
 
-## Environments
+1. Docker
+2. Docker Compose
 
-Create file to store environment variables, such as `.env`. Some variables already have default value. If you want to configure some variables, please take a look at `config` module for any possible variables to be configured. For simple configuration, define variables below:
+## Building Docker Image
 
-```
-export PORT=3001
-```
+    docker-compose build
 
-## Initial Setup
+The Docker Image only needs to be built once unless a change is made to the service.
 
-To use the environment variable when executing command, you can export the environment variable in file named `.env` with command `source ./.env`.
+## Running the Service
 
-# Run the Program
-py
-Don't forget to use pip env terminal first. To start the service, use command
+    docker-compose up
 
-> pipenv shell
-> python app
+The service can be run after the Docker Image has been built. To verify if the service is running correctly, you can use the App that we have released on https://ocr-data-preparation.web.app/.
